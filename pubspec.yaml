@@ -26,6 +26,10 @@ dependencies:
   package_info_plus: ^4.2.0
   flutter_localizations:
     sdk: flutter
+  # Supabase dependencies
+  supabase_flutter: ^1.10.25
+  envied: ^0.5.4
+  envied_generator: ^0.5.4
 
 dev_dependencies:
   flutter_test:

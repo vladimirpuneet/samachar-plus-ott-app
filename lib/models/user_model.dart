@@ -20,32 +20,42 @@ class UserModel {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // Handle both Firebase and Supabase formats
+    String uid = json['uid'] ?? json['id'] ?? '';
+    DateTime createdAt = json['createdAt'] != null
+        ? DateTime.parse(json['createdAt'])
+        : DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String());
+    DateTime? updatedAt = json['updatedAt'] != null
+        ? DateTime.parse(json['updatedAt'])
+        : (json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null);
+
     return UserModel(
-      uid: json['uid'],
-      email: json['email'],
-      name: json['name'],
-      phone: json['phone'],
+      uid: uid,
+      email: json['email'] ?? '',
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '',
       profileImage: json['profileImage'],
-      preferences: json['preferences'] != null 
+      preferences: json['preferences'] != null
           ? UserPreferences.fromJson(json['preferences'])
           : null,
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt'])
-          : null,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'uid': uid,
+      'id': uid, // Supabase uses 'id' field
       'email': email,
       'name': name,
       'phone': phone,
       'profileImage': profileImage,
       'preferences': preferences?.toJson(),
       'createdAt': createdAt.toIso8601String(),
+      'created_at': createdAt.toIso8601String(), // Supabase format
       'updatedAt': updatedAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(), // Supabase format
     };
   }
 
@@ -91,9 +101,9 @@ class UserPreferences {
 
   factory UserPreferences.fromJson(Map<String, dynamic> json) {
     return UserPreferences(
-      categories: List<String>.from(json['categories']),
-      state: json['state'],
-      district: json['district'],
+      categories: List<String>.from(json['categories'] ?? []),
+      state: json['state'] ?? '',
+      district: json['district'] ?? '',
       notificationsEnabled: json['notificationsEnabled'] ?? true,
       darkModeEnabled: json['darkModeEnabled'] ?? false,
       language: json['language'] ?? 'en',

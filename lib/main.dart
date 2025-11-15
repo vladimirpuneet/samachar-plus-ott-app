@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:samachar_plus_ott_app/services/firebase_service.dart';
+import 'package:samachar_plus_ott_app/services/supabase_service.dart';
 import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 import 'package:samachar_plus_ott_app/screens/splash_screen.dart';
 import 'package:samachar_plus_ott_app/utils/app_routes.dart';
 import 'package:samachar_plus_ott_app/utils/app_theme.dart';
 import 'package:samachar_plus_ott_app/firebase_options.dart';
+import 'env/env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +20,12 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: Env.supabaseUrl,
+    anonKey: Env.supabaseAnonKey,
   );
 
   // Set preferred orientations
