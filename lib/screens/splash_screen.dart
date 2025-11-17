@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/utils/app_routes.dart';
 
@@ -53,9 +54,9 @@ class _SplashScreenState extends State<SplashScreen>
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
       if (authProvider.isAuthenticated) {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+        context.go(AppRoutes.home);
       } else {
-        Navigator.of(context).pushReplacementNamed(AppRoutes.auth);
+        context.go(AppRoutes.auth);
       }
     });
   }

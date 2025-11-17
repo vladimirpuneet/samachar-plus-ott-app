@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'env/env.dart';
+import '../env/env.dart';
 
 class SupabaseService {
   static SupabaseService? _instance;
@@ -94,7 +95,7 @@ class SupabaseService {
       query = query.eq(filter, value);
     }
     
-    return query.stream(primaryKey: ['id']).map((event) => event);
+    return query.stream(primaryKey: 'id');
   }
 
   // Storage methods (for Cloudflare R2)
@@ -128,7 +129,7 @@ class SupabaseService {
     // Fallback to Supabase Storage
     await client.storage
         .from(bucketName)
-        .uploadBinary(fileName, bytes);
+        .uploadBinary(fileName, bytes as Uint8List);
     
     return client.storage.from(bucketName).getPublicUrl(fileName);
   }

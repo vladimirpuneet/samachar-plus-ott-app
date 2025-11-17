@@ -56,7 +56,7 @@ class SupabaseNewsService {
           .limit(limit);
 
       if (lastCursor != null) {
-        query = query.lt('id', lastCursor);
+        query = query.lt('created_at', lastCursor);
       }
 
       final response = await query;
@@ -70,7 +70,7 @@ class SupabaseNewsService {
   }
 
   /// Get news articles by region/location
-  /// 
+  ///
   /// Returns articles filtered by district or subDistrict
   Future<List<NewsArticle>> getArticlesByRegion({
     String? district,
@@ -78,19 +78,19 @@ class SupabaseNewsService {
     int limit = 20,
   }) async {
     try {
-      var query = _client
+      var queryBuilder = _client
           .from('content')
           .select()
           .order('created_at', ascending: false)
           .limit(limit);
 
       if (subDistrict != null && subDistrict.isNotEmpty) {
-        query = query.eq('sub_district', subDistrict);
+        queryBuilder = queryBuilder.select().eq('sub_district', subDistrict);
       } else if (district != null && district.isNotEmpty) {
-        query = query.eq('district', district);
+        queryBuilder = queryBuilder.select().eq('district', district);
       }
 
-      final response = await query;
+      final response = await queryBuilder;
 
       return response
           .map((data) => NewsArticle.fromJson(_convertToNewsArticleFormat(data)))

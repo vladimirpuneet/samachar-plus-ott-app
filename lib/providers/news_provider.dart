@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/models/news_model.dart';
-import 'package:samachar_plus_ott_app/services/firebase_service.dart'; // DEPRECATED: Will be removed in next iteration
 import 'package:samachar_plus_ott_app/services/supabase_news_service.dart';
 
 /// News Provider for Samachar Plus OTT App
@@ -12,7 +11,6 @@ import 'package:samachar_plus_ott_app/services/supabase_news_service.dart';
 /// TODO in next iteration: Remove all Firebase Firestore dependencies
 class NewsProvider extends ChangeNotifier {
   final SupabaseNewsService _supabaseNews = SupabaseNewsService.instance;
-  final FirebaseService _firebaseService = FirebaseService.instance; // DEPRECATED: Only used as fallback
 
   List<NewsArticle> _articles = [];
   List<LiveChannel> _liveChannels = [];
@@ -71,30 +69,9 @@ class NewsProvider extends ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      List<NewsArticle> articles = [];
-
-      // Try Supabase first
-      try {
-        articles = await _supabaseNews.getHomeFeed();
-        _usingSupabase = true;
-      } catch (e) {
-        print('Supabase articles load failed: $e');
-        // Fall through to Firebase fallback
-      }
-
-      // Firebase Firestore fallback (DEPRECATED - will be removed)
-      if (articles.isEmpty) {
-        try {
-          final querySnapshot = await _firebaseService.getDocuments('articles');
-          articles = querySnapshot.docs
-              .map((doc) => NewsArticle.fromJson(doc.data() as Map<String, dynamic>))
-              .toList();
-          _usingSupabase = false;
-        } catch (e) {
-          _setError('Failed to load articles: $e');
-          return;
-        }
-      }
+      // Load from Supabase only
+      final articles = await _supabaseNews.getHomeFeed();
+      _usingSupabase = true;
 
       _articles = articles;
       _filterArticles();
@@ -110,25 +87,9 @@ class NewsProvider extends ChangeNotifier {
   /// Uses Supabase coverage table with Firebase fallback
   Future<void> loadLiveChannels() async {
     try {
-      List<LiveChannel> channels = [];
-
-      // Try Supabase first
-      try {
-        channels = await _supabaseNews.getLiveChannels();
-        _usingSupabase = true;
-      } catch (e) {
-        print('Supabase channels load failed: $e');
-        // Fall through to Firebase fallback
-      }
-
-      // Firebase Firestore fallback (DEPRECATED - will be removed)
-      if (channels.isEmpty) {
-        final querySnapshot = await _firebaseService.getDocuments('channels');
-        channels = querySnapshot.docs
-            .map((doc) => LiveChannel.fromJson(doc.data() as Map<String, dynamic>))
-            .toList();
-        _usingSupabase = false;
-      }
+      // Load from Supabase only
+      final channels = await _supabaseNews.getLiveChannels();
+      _usingSupabase = true;
 
       _liveChannels = channels;
       notifyListeners();
@@ -264,28 +225,4 @@ class NewsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Force reload methods for testing (DEPRECATED - will be removed)
-  Future<void> forceLoadFromSupabase() async {
-    try {
-      final articles = await _supabaseNews.getHomeFeed();
-      _articles = articles;
-      _usingSupabase = true;
-      _filterArticles();
-    } catch (e) {
-      _setError('Failed to load from Supabase: $e');
-    }
-  }
-
-  Future<void> forceLoadFromFirebase() async {
-    try {
-      final querySnapshot = await _firebaseService.getDocuments('articles');
-      _articles = querySnapshot.docs
-          .map((doc) => NewsArticle.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-      _usingSupabase = false;
-      _filterArticles();
-    } catch (e) {
-      _setError('Failed to load from Firebase: $e');
-    }
-  }
 }
