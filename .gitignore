@@ -30,3 +30,6 @@ ios/Flutter/Flutter.framework.dSYM
 
 # macOS
 *.dSYM
+
+# React app source (reference only, not needed in repo)
+react_app_source/

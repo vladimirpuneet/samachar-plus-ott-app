@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/models/news_model.dart';
+import 'package:samachar_plus_ott_app/screens/splash_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
