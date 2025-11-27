@@ -1,72 +1,92 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:go_router/go_router.dart';
+import 'package:samachar_plus_ott_app/components/bottom_navigation_bar.dart' as app_nav;
+import 'package:samachar_plus_ott_app/components/header.dart';
+import 'package:samachar_plus_ott_app/screens/article_screen.dart';
+import 'package:samachar_plus_ott_app/screens/live_news_screen.dart';
+import 'package:samachar_plus_ott_app/screens/national_news_screen.dart';
+import 'package:samachar_plus_ott_app/screens/notifications_screen.dart';
+import 'package:samachar_plus_ott_app/screens/profile_screen.dart';
+import 'package:samachar_plus_ott_app/screens/regional_live_screen.dart';
+import 'package:samachar_plus_ott_app/screens/regional_news_screen.dart';
+import 'package:samachar_plus_ott_app/theme.dart';
+import 'package:samachar_plus_ott_app/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:samachar_plus_ott_app/services/firebase_service.dart';
-import 'package:samachar_plus_ott_app/services/supabase_service.dart';
-import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
-import 'package:samachar_plus_ott_app/providers/news_provider.dart';
-import 'package:samachar_plus_ott_app/screens/splash_screen.dart';
-import 'package:samachar_plus_ott_app/utils/app_routes.dart';
-import 'package:samachar_plus_ott_app/utils/app_theme.dart';
-import 'package:samachar_plus_ott_app/firebase_options.dart';
-import 'env/env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  // Initialize Supabase
   await Supabase.initialize(
     url: Env.supabaseUrl,
     anonKey: Env.supabaseAnonKey,
   );
 
-  // Set preferred orientations
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-
-  runApp(const SamacharPlusApp());
+  runApp(const MyApp());
 }
 
-class SamacharPlusApp extends StatelessWidget {
-  const SamacharPlusApp({super.key});
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorKey = GlobalKey<NavigatorState>();
+
+final _router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/',
+  routes: [
+    ShellRoute(
+      navigatorKey: _shellNavigatorKey,
+      builder: (context, state, child) {
+        return Scaffold(
+          appBar: const Header(),
+          body: child,
+          bottomNavigationBar: const app_nav.BottomNavigationBar(),
+        );
+      },
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => const RegionalNewsScreen(),
+        ),
+        GoRoute(
+          path: '/national',
+          builder: (context, state) => const NationalNewsScreen(),
+        ),
+        GoRoute(
+          path: '/live',
+          builder: (context, state) => const LiveNewsScreen(),
+        ),
+        GoRoute(
+          path: '/regional-live',
+          builder: (context, state) => const RegionalLiveScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+        GoRoute(
+          path: '/notifications',
+          builder: (context, state) => const NotificationsScreen(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/article/:id',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        return ArticleScreen(articleId: id);
+      },
+    ),
+  ],
+);
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => NewsProvider()),
-      ],
-      child: MaterialApp(
-        title: 'Samachar Plus OTT',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: ThemeMode.system,
-        locale: const Locale('en', 'IN'),
-        supportedLocales: const [
-          Locale('en', 'IN'),
-          Locale('hi', 'IN'),
-        ],
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        initialRoute: AppRoutes.splash,
-        routes: AppRoutes.routes,
-        onGenerateRoute: AppRoutes.generateRoute,
-      ),
+    return MaterialApp.router(
+      title: 'Samachar Plus OTT',
+      theme: AppTheme.lightTheme,
+      routerConfig: _router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

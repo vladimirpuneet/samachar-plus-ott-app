@@ -1,0 +1,5 @@
+{
+  "name": "React",
+  "description": "A modern, light-themed OTT news application interface with a vibrant red and dark blue color scheme, featuring a main video player, a scrollable playlist of news clips, and a detailed description area for the selected content. Built with React and Tailwind CSS.",
+  "requestFramePermissions": []
+}
