@@ -29,6 +29,12 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
   carousel_slider: ^4.2.1
+  
+  # Firebase dependencies - temporarily disabled for web build
+  # firebase_core: ^2.24.2
+  # cloud_firestore: ^4.13.6
+  # firebase_auth: ^4.15.3
+  # firebase_messaging: ^14.7.10
 
 dev_dependencies:
   flutter_test:
@@ -41,6 +47,7 @@ flutter:
   
   assets:
     - assets/images/
+    - assets/images/channels/
     - assets/icons/
     - assets/videos/
   

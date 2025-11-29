@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   // Brand Colors
-  static const Color primaryColor = Color(0xFF1E3A8A);
-  static const Color primaryLightColor = Color(0xFF3B82F6);
-  static const Color primaryDarkColor = Color(0xFF1E40AF);
+  static const Color primaryColor = Color(0xFFDC2626); // Red-600
+  static const Color primaryLightColor = Color(0xFFEF4444);
+  static const Color primaryDarkColor = Color(0xFFB91C1C);
   
   static const Color secondaryColor = Color(0xFF10B981);
   static const Color accentColor = Color(0xFFF59E0B);
   
   // Neutral Colors
-  static const Color backgroundColor = Color(0xFFF8FAFC);
+  static const Color backgroundColor = Color(0xFFF3F4F6); // Gray-100
   static const Color surfaceColor = Colors.white;
   static const Color errorColor = Color(0xFFEF4444);
   static const Color warningColor = Color(0xFFF59E0B);
@@ -84,7 +84,7 @@ class AppTheme {
       ),
       
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: surfaceColor,
         elevation: 2,
         shape: RoundedRectangleBorder(
@@ -124,7 +124,6 @@ class AppTheme {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        selectedColor: primaryColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -167,7 +166,7 @@ class AppTheme {
       ),
       
       // Card Theme
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: darkSurfaceColor,
         elevation: 2,
         shape: RoundedRectangleBorder(

@@ -23,11 +23,10 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
           onTap: onLogoClick ?? () => context.go('/news'),
           child: SizedBox(
             height: 56, // h-14 = 3.5rem = 56px
-            child: CachedNetworkImage(
-              imageUrl: "https://s12.gifyu.com/images/b38qq.gif",
+            child: Image.asset(
+              'assets/images/logo.gif',
               fit: BoxFit.contain,
-              placeholder: (context, url) => const SizedBox(),
-              errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.white),
+              errorBuilder: (context, error, stackTrace) => const Icon(Icons.error, color: Colors.white),
             ),
           ),
         ),
