@@ -1,6 +1,6 @@
 # Project Progress: Samachar Plus OTT (Flutter Port)
 
-**Overall Status:** 🏗️ In Progress (~45%)
+**Overall Status:** 🏗️ In Progress (~55%)
 
 ## ✅ Completed
 - [x] **Project Setup**: Dependencies, Assets, Theme.
@@ -11,12 +11,12 @@
 - [x] **Performance**: Scroll physics optimization.
 
 ## 🚧 In Progress
-- [ ] **News Feed**:
-    - [ ] `NewsCard` Widget
-    - [ ] `NewsScreen` Layout
-    - [ ] API Integration
+- [x] **News Feed**:
+    - [x] `NewsCard` Widget
+    - [x] `NewsScreen` Layout (National & Regional)
+    - [ ] API Integration (Supabase service ready, needs data)
 - [ ] **Authentication**:
-    - [ ] Supabase Setup
+    - [x] Supabase Setup
     - [ ] Login/Signup UI
     - [ ] Profile Management
 

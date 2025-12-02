@@ -39,6 +39,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   bool _isRegional = false;
+  bool _isSearchOpen = false;
+  final TextEditingController _searchController = TextEditingController();
 
   void _onItemTapped(int index) {
     setState(() {
@@ -49,6 +51,16 @@ class _HomePageState extends State<HomePage> {
   void _onToggleRegional(bool isRegional) {
     setState(() {
       _isRegional = isRegional;
+    });
+  }
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearchOpen = !_isSearchOpen;
+      if (!_isSearchOpen) {
+        _searchController.clear();
+        FocusScope.of(context).unfocus();
+      }
     });
   }
 
@@ -103,6 +115,48 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+            const Spacer(),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: _isSearchOpen ? 200 : 0,
+              height: 40,
+              curve: Curves.easeInOut,
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: _isSearchOpen
+                  ? TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search...',
+                        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.close, size: 18, color: Colors.grey),
+                          onPressed: _toggleSearch,
+                        ),
+                      ),
+                      style: const TextStyle(color: Colors.black, fontSize: 14),
+                      onSubmitted: (value) {
+                        // TODO: Implement search functionality
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Searching for: $value')),
+                        );
+                      },
+                    )
+                  : null,
+            ),
+            IconButton(
+              icon: Icon(
+                _isSearchOpen ? Icons.search_off : Icons.search,
+                color: Colors.white,
+                size: 28,
+              ),
+              onPressed: _toggleSearch,
             ),
           ],
         ),
