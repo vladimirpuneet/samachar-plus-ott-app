@@ -21,6 +21,10 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light, // Force light mode for now to match React app default
       home: const HomePage(),
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        physics: const BouncingScrollPhysics(),
+        scrollbars: false,
+      ),
     );
   }
 }
@@ -52,7 +56,27 @@ class _HomePageState extends State<HomePage> {
     if (_selectedIndex == 0) {
       return const NewsTab();
     } else if (_selectedIndex == 1) {
-      return _isRegional ? const RegionalLiveScreen() : const LiveNewsScreen();
+      return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeInOut,
+        switchOutCurve: Curves.easeInOut,
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final isRegional = child.key == const ValueKey('regional');
+          // Vertical slide: Regional slides up from bottom, National slides down from top
+          final offset = isRegional ? const Offset(0.0, 1.0) : const Offset(0.0, -1.0);
+          
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: offset,
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        child: _isRegional
+            ? const RegionalLiveScreen(key: ValueKey('regional'))
+            : const LiveNewsScreen(key: ValueKey('national')),
+      );
     } else {
       return const ProfileTab();
     }
