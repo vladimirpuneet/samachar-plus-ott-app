@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:samachar_plus_ott_app/components/spinner.dart';
+import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/constants.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
 
@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: Spinner());
+      return const Center(child: CustomSpinner());
     }
 
     return SingleChildScrollView(

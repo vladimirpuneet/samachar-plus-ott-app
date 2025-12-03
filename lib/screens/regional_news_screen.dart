@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/components/news_card.dart';
-import 'package:samachar_plus_ott_app/components/spinner.dart';
+import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/models.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
 
@@ -38,7 +38,7 @@ class _RegionalNewsScreenState extends State<RegionalNewsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Center(child: Spinner());
+      return const Center(child: CustomSpinner());
     }
 
     return SingleChildScrollView(

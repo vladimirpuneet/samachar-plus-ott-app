@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:samachar_plus_ott_app/components/spinner.dart';
+import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/constants.dart';
 import 'package:samachar_plus_ott_app/models.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
-import 'package:samachar_plus_ott_app/screens/video_player_screen.dart';
+import 'package:samachar_plus_ott_app/components/live_video_player.dart';
 import 'package:samachar_plus_ott_app/widgets/channel_card.dart';
 
 class RegionalLiveScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class RegionalLiveScreen extends StatefulWidget {
 
 class _RegionalLiveScreenState extends State<RegionalLiveScreen> {
   Map<String, List<LiveChannel>> _channelsByState = {};
-  bool _isLoading = true;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _RegionalLiveScreenState extends State<RegionalLiveScreen> {
 
   void _loadChannels() {
     setState(() {
-      _isLoading = true;
+      isLoading = true;
     });
 
     final regionalChannels = LIVE_CHANNELS.where((c) => c.category == 'REGIONAL').toList();
@@ -44,45 +44,26 @@ class _RegionalLiveScreenState extends State<RegionalLiveScreen> {
 
     setState(() {
       _channelsByState = groupedByState;
-      _isLoading = false;
+      isLoading = false;
     });
   }
 
   void _handleChannelTap(LiveChannel channel) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            VideoPlayerScreen(channel: channel),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = 0.0;
-          const end = 1.0;
-          const curve = Curves.easeInOut;
-
-          var fadeAnimation = Tween(begin: begin, end: end).animate(
-            CurvedAnimation(parent: animation, curve: curve),
-          );
-
-          var scaleAnimation = Tween(begin: 0.9, end: 1.0).animate(
-            CurvedAnimation(parent: animation, curve: curve),
-          );
-
-          return FadeTransition(
-            opacity: fadeAnimation,
-            child: ScaleTransition(
-              scale: scaleAnimation,
-              child: child,
-            ),
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.5), // Dimmed background
+      barrierDismissible: true, // Allow clicking outside to close
+      builder: (context) => LiveVideoPlayer(
+        channel: channel,
+        onClose: () => Navigator.of(context).pop(),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: Spinner());
+    if (isLoading) {
+      return const Center(child: CustomSpinner());
     }
 
     return SingleChildScrollView(
