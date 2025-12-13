@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
 
@@ -13,7 +13,7 @@ class Header extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: AppTheme.red500,
       elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.5),
+      shadowColor: Colors.black.withValues(alpha: 0.5),
       centerTitle: false,
       titleSpacing: 0,
       leadingWidth: 0,

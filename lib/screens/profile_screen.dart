@@ -99,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -244,19 +244,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTheme.gray600),
           ),
           const SizedBox(height: 8),
-          Row(
-            children: ['male', 'female', 'other'].map((g) {
-              return Expanded(
-                child: RadioListTile<String>(
-                  title: Text(g[0].toUpperCase() + g.substring(1)),
-                  value: g,
-                  groupValue: _gender,
-                  onChanged: (value) => setState(() => _gender = value!),
-                  dense: true,
-                  activeColor: AppTheme.red500,
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<String>(
+              segments: const [
+                ButtonSegment(
+                  value: 'male',
+                  label: Text('Male'),
+                  icon: Icon(Icons.male),
                 ),
-              );
-            }).toList(),
+                ButtonSegment(
+                  value: 'female',
+                  label: Text('Female'),
+                  icon: Icon(Icons.female),
+                ),
+                ButtonSegment(
+                  value: 'other',
+                  label: Text('Other'),
+                  icon: Icon(Icons.person),
+                ),
+              ],
+              selected: {_gender},
+              onSelectionChanged: (Set<String> newSelection) {
+                setState(() {
+                  _gender = newSelection.first;
+                });
+              },
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>(
+                  (states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppTheme.red500.withValues(alpha: 0.1);
+                    }
+                    return null;
+                  },
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>(
+                  (states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return AppTheme.red500;
+                    }
+                    return AppTheme.gray700;
+                  },
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: 24),
           const Divider(),
@@ -298,11 +331,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
+            key: ValueKey('state_$_state'),
             decoration: const InputDecoration(
               labelText: 'State',
               border: OutlineInputBorder(),
             ),
-            value: _state.isEmpty ? null : _state,
+            initialValue: _state.isEmpty ? null : _state,
             items: _states.map((s) {
               return DropdownMenuItem(value: s, child: Text(s));
             }).toList(),
@@ -315,11 +349,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
+            key: ValueKey('district_$_district'), // Force rebuild when value changes
             decoration: const InputDecoration(
               labelText: 'District',
               border: OutlineInputBorder(),
             ),
-            value: _district.isEmpty ? null : _district,
+            initialValue: _district.isEmpty ? null : _district,
             items: _state.isEmpty
                 ? []
                 : (_districts[_state] ?? []).map((d) {

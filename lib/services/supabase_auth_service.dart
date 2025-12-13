@@ -6,7 +6,7 @@ import 'package:samachar_plus_ott_app/env/env.dart';
 /// This service handles all Supabase-specific authentication operations.
 /// Used as the primary auth method with Firebase Auth as fallback.
 /// 
-/// TODO in next iteration: Remove Firebase Auth dependency completely
+/// Used as the primary auth method.
 class SupabaseAuthService {
   static final SupabaseAuthService _instance = SupabaseAuthService._internal();
   static SupabaseAuthService get instance => _instance;

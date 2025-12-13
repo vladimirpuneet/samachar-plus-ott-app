@@ -29,7 +29,7 @@ class AppTheme {
       primaryColor: primaryColor,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
-        background: gray100,
+
         surface: Colors.white,
       ),
       textTheme: GoogleFonts.interTextTheme().apply(

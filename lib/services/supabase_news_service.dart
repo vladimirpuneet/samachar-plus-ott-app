@@ -11,7 +11,7 @@ import 'package:samachar_plus_ott_app/models/news_model.dart';
 /// - Real-time subscriptions
 /// 
 /// Used as primary news service with Firebase Firestore as fallback during migration.
-/// TODO in next iteration: Remove all Firebase Firestore dependencies
+/// Manages all news-related data fetching and real-time subscriptions
 class SupabaseNewsService {
   static final SupabaseNewsService _instance = SupabaseNewsService._internal();
   static SupabaseNewsService get instance => _instance;
@@ -51,15 +51,13 @@ class SupabaseNewsService {
       var query = _client
           .from('content')
           .select()
-          .eq('category', category)
-          .order('created_at', ascending: false)
-          .limit(limit);
+          .eq('category', category);
 
       if (lastCursor != null) {
         query = query.lt('id', lastCursor);
       }
 
-      final response = await query;
+      final response = await query.order('created_at', ascending: false).limit(limit);
 
       return response
           .map((data) => NewsArticle.fromJson(_convertToNewsArticleFormat(data)))
@@ -80,9 +78,7 @@ class SupabaseNewsService {
     try {
       var query = _client
           .from('content')
-          .select()
-          .order('created_at', ascending: false)
-          .limit(limit);
+          .select();
 
       if (subDistrict != null && subDistrict.isNotEmpty) {
         query = query.eq('sub_district', subDistrict);
@@ -90,7 +86,7 @@ class SupabaseNewsService {
         query = query.eq('district', district);
       }
 
-      final response = await query;
+      final response = await query.order('created_at', ascending: false).limit(limit);
 
       return response
           .map((data) => NewsArticle.fromJson(_convertToNewsArticleFormat(data)))

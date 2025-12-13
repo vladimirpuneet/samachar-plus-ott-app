@@ -59,7 +59,7 @@ class _LiveNewsScreenState extends State<LiveNewsScreen> {
   void _handleChannelTap(LiveChannel channel) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.5), // Dimmed background
+      barrierColor: Colors.black.withValues(alpha: 0.5), // Dimmed background
       barrierDismissible: true, // Allow clicking outside to close
       builder: (context) => LiveVideoPlayer(
         channel: channel,

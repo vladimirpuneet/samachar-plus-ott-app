@@ -6,7 +6,7 @@ import 'package:samachar_plus_ott_app/env/env.dart';
 /// Handles media asset URLs from Supabase media_assets table and Cloudflare R2.
 /// Provides simple HTTP(s) URLs for images, videos, and thumbnails.
 /// 
-/// TODO in next iteration: Remove Firebase Storage SDK dependency
+/// Provides simple HTTP(s) URLs for images, videos, and thumbnails.
 class MediaService {
   static final MediaService _instance = MediaService._internal();
   static MediaService get instance => _instance;
@@ -32,8 +32,7 @@ class MediaService {
           .from('media_assets')
           .select()
           .eq('id', assetId)
-          .single()
-          .catchError((error) => null);
+          .maybeSingle();
       
       if (response == null) return null;
       

@@ -117,7 +117,7 @@ class AppTheme {
       
       // Chip Theme
       chipTheme: ChipThemeData(
-        backgroundColor: primaryColor.withOpacity(0.1),
+        backgroundColor: primaryColor.withValues(alpha: 0.1),
         selectedColor: primaryColor,
         labelStyle: const TextStyle(
           color: textSecondaryColor,

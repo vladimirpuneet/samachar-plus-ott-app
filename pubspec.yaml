@@ -18,29 +18,24 @@ dependencies:
   pull_to_refresh: ^2.0.0
   intl: ^0.20.2
   url_launcher: ^6.2.1
-  package_info_plus: ^4.2.0
+  package_info_plus: ^9.0.0
   flutter_localizations:
     sdk: flutter
   # Supabase dependencies
-  supabase_flutter: ^1.10.25
-  envied: ^0.5.4
-  envied_generator: ^0.5.4
-  go_router: ^13.0.0
+  supabase_flutter: ^2.12.0
+  envied: ^1.3.2
+
+  go_router: ^17.0.1
   google_fonts: ^6.1.0
   flutter_svg: ^2.0.9
-  carousel_slider: ^4.2.1
+  carousel_slider: ^5.1.1
   
-  # Firebase dependencies - temporarily disabled for web build
-  # firebase_core: ^2.24.2
-  # cloud_firestore: ^4.13.6
-  # firebase_auth: ^4.15.3
-  # firebase_messaging: ^14.7.10
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.1
+  flutter_lints: ^6.0.0
   build_runner: ^2.4.13
+  envied_generator: ^1.3.2
 
 flutter:
   uses-material-design: true

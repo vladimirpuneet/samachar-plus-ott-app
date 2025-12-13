@@ -53,10 +53,10 @@ class _LiveControlsState extends State<LiveControls> {
                   colors: [Color(0xFF374151), Color(0xFF111827)],
                 ),
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.black.withOpacity(0.2), width: 2),
+                border: Border.all(color: Colors.black.withValues(alpha: 0.2), width: 2),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -73,7 +73,7 @@ class _LiveControlsState extends State<LiveControls> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF111827).withOpacity(0.9),
+              color: const Color(0xFF111827).withValues(alpha: 0.9),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:samachar_plus_ott_app/models/news_article.dart';
-import 'package:samachar_plus_ott_app/models/live_channel.dart';
+import 'package:samachar_plus_ott_app/models/news_model.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -32,9 +31,7 @@ class SupabaseService {
       var query = client
           .from('news_articles')
           .select()
-          .eq('status', 'published')
-          .order('published_at', ascending: false)
-          .range(offset, offset + limit - 1);
+          .eq('status', 'published');
 
       if (category != null && category.isNotEmpty) {
         query = query.eq('category', category);
@@ -48,7 +45,7 @@ class SupabaseService {
         query = query.eq('district', district);
       }
 
-      final response = await query;
+      final response = await query.order('published_at', ascending: false).range(offset, offset + limit - 1);
       return (response as List)
           .map((json) => NewsArticle.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -66,7 +63,7 @@ class SupabaseService {
           .eq('id', id)
           .single();
 
-      return NewsArticle.fromJson(response as Map<String, dynamic>);
+      return NewsArticle.fromJson(response);
     } catch (e) {
       print('Error fetching article: $e');
       return null;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/models/news_model.dart';
-import 'package:samachar_plus_ott_app/services/firebase_service.dart'; // DEPRECATED: Will be removed in next iteration
+
 import 'package:samachar_plus_ott_app/services/supabase_news_service.dart';
 
 /// News Provider for Samachar Plus OTT App
@@ -9,10 +9,10 @@ import 'package:samachar_plus_ott_app/services/supabase_news_service.dart';
 /// with Firebase Firestore as fallback during migration period.
 ///
 /// All public methods maintain the same interface to preserve UI compatibility.
-/// TODO in next iteration: Remove all Firebase Firestore dependencies
+/// All public methods maintain the same interface to preserve UI compatibility.
 class NewsProvider extends ChangeNotifier {
   final SupabaseNewsService _supabaseNews = SupabaseNewsService.instance;
-  final FirebaseService _firebaseService = FirebaseService.instance; // DEPRECATED: Only used as fallback
+
 
   List<NewsArticle> _articles = [];
   List<LiveChannel> _liveChannels = [];
@@ -82,19 +82,7 @@ class NewsProvider extends ChangeNotifier {
         // Fall through to Firebase fallback
       }
 
-      // Firebase Firestore fallback (DEPRECATED - will be removed)
-      if (articles.isEmpty) {
-        try {
-          final querySnapshot = await _firebaseService.getDocuments('articles');
-          articles = querySnapshot.docs
-              .map((doc) => NewsArticle.fromJson(doc.data() as Map<String, dynamic>))
-              .toList();
-          _usingSupabase = false;
-        } catch (e) {
-          _setError('Failed to load articles: $e');
-          return;
-        }
-      }
+
 
       _articles = articles;
       _filterArticles();
@@ -121,14 +109,7 @@ class NewsProvider extends ChangeNotifier {
         // Fall through to Firebase fallback
       }
 
-      // Firebase Firestore fallback (DEPRECATED - will be removed)
-      if (channels.isEmpty) {
-        final querySnapshot = await _firebaseService.getDocuments('channels');
-        channels = querySnapshot.docs
-            .map((doc) => LiveChannel.fromJson(doc.data() as Map<String, dynamic>))
-            .toList();
-        _usingSupabase = false;
-      }
+
 
       _liveChannels = channels;
       notifyListeners();
@@ -276,16 +257,5 @@ class NewsProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> forceLoadFromFirebase() async {
-    try {
-      final querySnapshot = await _firebaseService.getDocuments('articles');
-      _articles = querySnapshot.docs
-          .map((doc) => NewsArticle.fromJson(doc.data() as Map<String, dynamic>))
-          .toList();
-      _usingSupabase = false;
-      _filterArticles();
-    } catch (e) {
-      _setError('Failed to load from Firebase: $e');
-    }
-  }
+
 }
