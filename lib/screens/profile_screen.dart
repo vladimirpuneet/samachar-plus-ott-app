@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/constants.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -13,10 +16,10 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   bool _isEditing = false;
   bool _isLoading = false;
-  
-  // Mock user data (replace with actual auth later)
-  String _name = 'Guest User';
-  String _phone = '+91 XXXXXXXXXX';
+
+  // User data from auth
+  String _name = '';
+  String _phone = '';
   String _gender = 'other';
   String _state = '';
   String _district = '';
@@ -31,6 +34,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     'Jharkhand': ['Ranchi', 'Jamshedpur', 'Dhanbad'],
   };
 
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userProfile = authProvider.userProfile;
+    if (userProfile != null) {
+      setState(() {
+        _name = userProfile.name;
+        _phone = userProfile.phone;
+        _state = userProfile.preferences?.state ?? '';
+        _district = userProfile.preferences?.district ?? '';
+        _selectedCategories = userProfile.preferences?.categories ?? [];
+      });
+    }
+  }
+
   void _toggleCategory(String category) {
     setState(() {
       if (_selectedCategories.contains(category)) {
@@ -43,16 +66,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _handleSave() async {
     setState(() => _isLoading = true);
-    
-    // Simulate save
-    await Future.delayed(const Duration(seconds: 1));
-    
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userProfile = authProvider.userProfile;
+
+    if (userProfile != null) {
+      final updatedProfile = userProfile.copyWith(
+        name: _name,
+        preferences: userProfile.preferences?.copyWith(
+          state: _state,
+          district: _district,
+          categories: _selectedCategories,
+        ),
+      );
+
+      await authProvider.updateUserProfile(updatedProfile);
+    }
+
     if (mounted) {
       setState(() {
         _isLoading = false;
         _isEditing = false;
       });
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Profile updated successfully!'),
@@ -74,6 +110,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    if (!authProvider.isAuthenticated) {
+      return _buildSignInPrompt();
+    }
+
     if (_isLoading) {
       return const Center(child: CustomSpinner());
     }
@@ -87,6 +129,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
           else
             _buildViewMode(),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSignInPrompt() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.account_circle,
+              size: 80,
+              color: AppTheme.gray400,
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Sign in to access your profile',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.gray800,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Manage your preferences, view your activity, and personalize your news experience.',
+              style: TextStyle(
+                fontSize: 16,
+                color: AppTheme.gray600,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: () => context.push('/phone'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppTheme.red500,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              ),
+              child: const Text(
+                'Sign In / Sign Up',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,10 +253,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.logout, color: AppTheme.gray500),
-                    onPressed: () {
-                      // Handle logout
+                    onPressed: () async {
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      await authProvider.signOut();
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Logout functionality pending')),
+                        const SnackBar(content: Text('Signed out successfully')),
                       );
                     },
                   ),

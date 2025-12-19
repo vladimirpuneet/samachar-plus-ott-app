@@ -120,4 +120,22 @@ class UserPreferences {
       'language': language,
     };
   }
+
+  UserPreferences copyWith({
+    List<String>? categories,
+    String? state,
+    String? district,
+    bool? notificationsEnabled,
+    bool? darkModeEnabled,
+    String? language,
+  }) {
+    return UserPreferences(
+      categories: categories ?? this.categories,
+      state: state ?? this.state,
+      district: district ?? this.district,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
+      darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
+      language: language ?? this.language,
+    );
+  }
 }

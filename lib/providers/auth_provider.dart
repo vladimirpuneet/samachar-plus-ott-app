@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/models/user_model.dart';
 import 'package:samachar_plus_ott_app/services/supabase_auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Authentication Provider for Samachar Plus OTT App
 class AuthProvider extends ChangeNotifier {
   final SupabaseAuthService _supabaseAuth = SupabaseAuthService.instance;
+  final SupabaseClient _client = Supabase.instance.client;
 
   dynamic _currentUser;
   UserModel? _userProfile;
@@ -34,39 +36,46 @@ class AuthProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> sendOtp(String phone) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      final result = await _supabaseAuth.signInWithEmailAndPassword(email, password);
-      if (result.user != null) {
-        await _loadUserProfile(result.user!.id);
+      final success = await _supabaseAuth.sendOtp(phone);
+      if (!success) {
+        throw Exception('Failed to send OTP');
       }
     } catch (e) {
-      _setError('Sign in failed: $e');
+      _setError('Failed to send OTP: $e');
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<void> signUp(String email, String password, String name, String phone) async {
+  Future<void> verifyOtpAndSignIn(String phone, String otp) async {
     try {
       _setLoading(true);
       _setError(null);
 
-      final result = await _supabaseAuth.createUserWithEmailAndPassword(email, password);
+      final result = await _supabaseAuth.verifyOtpAndAuth(phone, otp);
       if (result.user != null) {
-        UserModel userModel = UserModel(
-          uid: result.user!.id,
-          email: email,
-          name: name,
-          phone: phone,
-          createdAt: DateTime.now(),
-        );
+        await _loadUserProfile(result.user!.id);
+      }
+    } catch (e) {
+      _setError('OTP verification failed: $e');
+    } finally {
+      _setLoading(false);
+    }
+  }
 
-        await _saveUserProfile(userModel);
-        _userProfile = userModel;
+  Future<void> verifyOtpAndSignUp(String phone, String otp, String name) async {
+    try {
+      _setLoading(true);
+      _setError(null);
+
+      final result = await _supabaseAuth.verifyOtpAndAuth(phone, otp, name: name);
+      if (result.user != null) {
+        await _loadUserProfile(result.user!.id);
       }
     } catch (e) {
       _setError('Sign up failed: $e');
@@ -91,7 +100,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _loadUserProfile(String uid) async {
     try {
-      print('User profile loading not implemented yet');
+      final response = await _client
+          .from('public_users')
+          .select('*')
+          .eq('id', uid)
+          .single();
+
+      _userProfile = UserModel.fromJson({
+        ...response,
+        'email': '', // Not stored in public_users, but required by UserModel
+      });
     } catch (e) {
       _setError('Failed to load user profile: $e');
     }
@@ -99,7 +117,15 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _saveUserProfile(UserModel user) async {
     try {
-      print('User profile saving not implemented yet');
+      await _client.from('public_users').upsert({
+        'id': user.uid,
+        'phone': user.phone,
+        'name': user.name,
+        'state': user.preferences?.state ?? '',
+        'district': user.preferences?.district ?? '',
+        'preferences': user.preferences?.toJson() ?? {},
+        'updated_at': DateTime.now().toIso8601String(),
+      });
     } catch (e) {
       _setError('Failed to save user profile: $e');
     }
@@ -112,6 +138,16 @@ class AuthProvider extends ChangeNotifier {
 
   void _setError(String? error) {
     _error = error;
+    notifyListeners();
+  }
+
+  Future<bool> checkUserExists(String phone) async {
+    return await _supabaseAuth.userExistsByPhone(phone);
+  }
+
+  Future<void> updateUserProfile(UserModel user) async {
+    await _saveUserProfile(user);
+    _userProfile = user;
     notifyListeners();
   }
 
