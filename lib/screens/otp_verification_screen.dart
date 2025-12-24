@@ -198,7 +198,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                   ),
                   child: Text(
                     authProvider.error!,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: AppTheme.red500),
                   ),
                 ),
               const SizedBox(height: 24),

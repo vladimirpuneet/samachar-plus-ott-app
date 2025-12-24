@@ -14,7 +14,7 @@ class AppTheme {
   static const Color gray800 = Color(0xFF1F2937);
   static const Color gray900 = Color(0xFF111827);
 
-  static const Color red500 = Color(0xFFEF4444);
+  static const Color red500 = Color(0xFFCD1913);
   static const Color blue500 = Color(0xFF3B82F6);
   
   // Primary Brand Color (Assuming a standard blue/red or neutral based on news apps, 

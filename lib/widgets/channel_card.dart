@@ -28,19 +28,21 @@ class ChannelCard extends StatelessWidget {
           ],
         ),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset(
-          channel.logoUrl,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.broken_image, color: Colors.grey, size: 32),
-              SizedBox(height: 4),
-              Text(
-                'No Logo',
-                style: TextStyle(fontSize: 10, color: Colors.grey),
-              ),
-            ],
+        child: SizedBox.expand(
+          child: Image.asset(
+            channel.logoUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) => const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.broken_image, color: Colors.grey, size: 32),
+                SizedBox(height: 4),
+                Text(
+                  'No Logo',
+                  style: TextStyle(fontSize: 10, color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ),
       ),
