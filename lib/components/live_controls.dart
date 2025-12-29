@@ -1,9 +1,10 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:samachar_plus_ott_app/models.dart';
+import 'package:samachar_plus_ott_app/components/live_bottom_bar.dart';
 import 'package:video_player/video_player.dart';
 
-class LiveControls extends StatefulWidget {
+class LiveControls extends StatelessWidget {
   final LiveChannel channel;
   final VoidCallback onClose;
 
@@ -14,34 +15,23 @@ class LiveControls extends StatefulWidget {
   });
 
   @override
-  State<LiveControls> createState() => _LiveControlsState();
-}
-
-class _LiveControlsState extends State<LiveControls> {
-  ChewieController? _chewieController;
-  VideoPlayerController? _videoPlayerController;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _chewieController = ChewieController.of(context);
-    _videoPlayerController = _chewieController?.videoPlayerController;
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final chewieController = ChewieController.of(context);
+    final videoPlayerController = chewieController?.videoPlayerController;
+    final isFullScreen = chewieController?.isFullScreen ?? false;
+
     return Stack(
       children: [
-        // Close Button (Top Right)
+        // Close Button (Top Right) - Always Visible
         Positioned(
           top: 40,
           right: 20,
           child: GestureDetector(
             onTap: () {
-              if (_chewieController?.isFullScreen ?? false) {
-                _chewieController?.exitFullScreen();
+              if (isFullScreen) {
+                chewieController?.exitFullScreen();
               } else {
-                widget.onClose();
+                onClose();
               }
             },
             child: Container(
@@ -67,111 +57,16 @@ class _LiveControlsState extends State<LiveControls> {
           ),
         ),
 
-        // Bottom Control Bar
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFF111827).withValues(alpha: 0.9),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Report Button
-                TextButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Report submitted')),
-                    );
-                  },
-                  icon: const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 20),
-                  label: const Text(
-                    'REPORT NOT WORKING',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w500),
-                  ),
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                ),
-
-                // Channel Info (Centered)
-                Expanded(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        widget.channel.name,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (widget.channel.subCategory != null)
-                        Text(
-                          widget.channel.subCategory!,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                    ],
-                  ),
-                ),
-
-                // Controls (Mute & Fullscreen)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Mute Toggle
-                    StatefulBuilder(
-                      builder: (context, setState) {
-                        final isMuted = _videoPlayerController?.value.volume == 0;
-                        return IconButton(
-                          icon: Icon(
-                            isMuted ? Icons.volume_off : Icons.volume_up,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              if (isMuted) {
-                                _videoPlayerController?.setVolume(1);
-                              } else {
-                                _videoPlayerController?.setVolume(0);
-                              }
-                            });
-                          },
-                        );
-                      },
-                    ),
-                    // Fullscreen Toggle
-                    IconButton(
-                      icon: Icon(
-                        (_chewieController?.isFullScreen ?? false)
-                            ? Icons.fullscreen_exit
-                            : Icons.fullscreen,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        if (_chewieController?.isFullScreen ?? false) {
-                          _chewieController?.exitFullScreen();
-                        } else {
-                          _chewieController?.enterFullScreen();
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ],
+        // Bottom Control Bar - Only visible in Fullscreen
+        if (isFullScreen)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: LiveBottomBar(
+              channel: channel,
+              videoPlayerController: videoPlayerController,
+              chewieController: chewieController,
             ),
           ),
-        ),
       ],
     );
   }

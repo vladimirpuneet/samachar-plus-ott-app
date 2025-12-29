@@ -19,6 +19,13 @@ class BottomNavigationBar extends StatelessWidget {
     final String location = GoRouterState.of(context).uri.toString();
     final bool isProfileActive = location == '/profile';
     final bool isNotificationsActive = location == '/notifications';
+    final bool isLiveActive = location.contains('live'); 
+    final bool isNewsActive = (location == '/' || location == '/national') && !isLiveActive;
+    
+    // According to requests:
+    // Profile -> Red if active
+    // Notifications -> Red if active
+    // UniButton (Live TV / News) -> Red highlight is handled inside UniButton itself.
 
     return Container(
       height: 80, // Adjust height as needed

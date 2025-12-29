@@ -18,7 +18,7 @@ class LiveIcon extends StatelessWidget {
       ),
       alignment: Alignment.center,
       child: Text(
-        'LIVE',
+        'LIVE TV',
         style: TextStyle(
           color: color ?? Colors.black,
           fontWeight: FontWeight.bold,

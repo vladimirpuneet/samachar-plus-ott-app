@@ -2,46 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samachar_plus_ott_app/components/icons.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 
 class UniButton extends StatelessWidget {
   const UniButton({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final newsProvider = Provider.of<NewsProvider>(context);
     final String location = GoRouterState.of(context).uri.toString();
+    
+    // Determine current state based on NewsProvider for persistence
+    // But fallback to URL if provider is not yet set (initial load) or out of sync
+    // Prioritize URL for 'isLive' state, but use Provider for 'National/Regional' toggle state
+    
     final bool isLive = location.contains('live');
-    final bool isRegionalActive = location == '/' || location == '/regional-live';
-    final bool isNationalActive = location == '/national' || location == '/live';
+    final String currentRegion = newsProvider.selectedRegion; // 'NATIONAL' or 'REGIONAL'
+    final bool isSliderOnRegional = currentRegion == 'REGIONAL';
 
-    // Determine preference based on active route
-    String preference = 'national';
-    if (isRegionalActive) {
-      preference = 'regional';
-    } else if (isNationalActive) {
-      preference = 'national';
-    }
-
-    final bool isSliderOnRegional = preference == 'regional';
-
-    final String livePath = preference == 'regional' ? '/regional-live' : '/live';
-    final String newsPath = preference == 'regional' ? '/' : '/national';
+    // Calculate paths based on current Toggle State
+    final String livePath = isSliderOnRegional ? '/regional-live' : '/live';
+    final String newsPath = isSliderOnRegional ? '/' : '/national';
 
     return Container(
-      width: 240, // Approximate width
+      width: 260, // Increased from 240 to accommodate wider button
       padding: const EdgeInsets.symmetric(horizontal: 8),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Live Icon
+          // LIVE TV Icon
           InkWell(
-            onTap: () => context.go(livePath),
+            onTap: () {
+               if (!isLive) {
+                 context.go(livePath, extra: <String, dynamic>{'transition': 'horizontal'});
+               }
+            },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: LiveIcon(
-                width: 50,
+                width: 70, // Increased width for "LIVE TV"
                 height: 30,
-                color: isLive ? AppTheme.red500 : AppTheme.gray500,
+                color: isLive && !location.contains('/profile') && !location.contains('/notifications') ? AppTheme.red500 : AppTheme.gray500,
               ),
             ),
           ),
@@ -74,7 +77,18 @@ class UniButton extends StatelessWidget {
                   children: [
                     Expanded(
                       child: InkWell(
-                        onTap: () => context.go(isLive ? '/live' : '/national'),
+                        onTap: () {
+                          if (isSliderOnRegional) {
+                            // Switching to National
+                            newsProvider.setSelectedRegion('NATIONAL');
+                            final target = isLive ? '/live' : '/national';
+                            context.go(target, extra: <String, dynamic>{'transition': 'vertical'});
+                          } else {
+                            if (!location.startsWith('/national') && location != '/live') {
+                               context.go(isLive ? '/live' : '/national', extra: <String, dynamic>{'transition': 'vertical'});
+                            }
+                          }
+                        },
                         child: Center(
                           child: Text(
                             'National',
@@ -89,7 +103,18 @@ class UniButton extends StatelessWidget {
                     ),
                     Expanded(
                       child: InkWell(
-                        onTap: () => context.go(isLive ? '/regional-live' : '/'),
+                        onTap: () {
+                           if (!isSliderOnRegional) {
+                            // Switching to Regional
+                            newsProvider.setSelectedRegion('REGIONAL');
+                            final target = isLive ? '/regional-live' : '/';
+                            context.go(target, extra: <String, dynamic>{'transition': 'vertical'});
+                          } else {
+                             if (location != '/' && location != '/regional-live') {
+                               context.go(isLive ? '/regional-live' : '/', extra: <String, dynamic>{'transition': 'vertical'});
+                            }
+                          }
+                        },
                         child: Center(
                           child: Text(
                             'Regional',
@@ -108,15 +133,19 @@ class UniButton extends StatelessWidget {
             ),
           ),
 
-          // News Icon
+          // NEWS Icon
           InkWell(
-            onTap: () => context.go(newsPath),
+            onTap: () {
+               if (isLive) {
+                 context.go(newsPath, extra: <String, dynamic>{'transition': 'horizontal'});
+               }
+            },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(4.0),
               child: TextNewsIcon(
-                width: 50,
+                width: 60,
                 height: 30,
-                color: !isLive ? AppTheme.red500 : AppTheme.gray500,
+                color: !isLive && !location.contains('/profile') && !location.contains('/notifications') ? AppTheme.red500 : AppTheme.gray500,
               ),
             ),
           ),

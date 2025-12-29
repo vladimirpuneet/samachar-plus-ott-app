@@ -204,6 +204,8 @@ class LiveChannel {
   final String description;
   final bool isLive;
   final int viewers;
+  final String? subCategory;
+  final List<String>? states;
 
   // Backward compatibility property (deprecated)
   String get logoUrl => logoAssetId; // For backward compatibility
@@ -214,9 +216,12 @@ class LiveChannel {
     required this.logoAssetId,
     required this.streamUrl,
     required this.category,
-    required this.description,
+
+    this.description = '',
     this.isLive = true,
     this.viewers = 0,
+    this.subCategory,
+    this.states,
   });
 
   factory LiveChannel.fromJson(Map<String, dynamic> json) {
@@ -232,6 +237,8 @@ class LiveChannel {
       description: json['description'] ?? '',
       isLive: json['is_live'] ?? json['isLive'] ?? true,
       viewers: json['viewer_count'] ?? json['viewers'] ?? 0,
+      subCategory: json['sub_category'] ?? json['subCategory'],
+      states: json['states'] != null ? List<String>.from(json['states']) : null,
     );
   }
 
@@ -245,12 +252,15 @@ class LiveChannel {
       'description': description,
       'is_live': isLive,
       'viewer_count': viewers,
+      'sub_category': subCategory,
+      'states': states,
       
       // Backward compatibility fields (for Firebase format)
       'logoUrl': logoAssetId,
       'streamUrl': streamUrl,
       'isLive': isLive,
       'viewers': viewers,
+      'subCategory': subCategory,
     };
   }
 
@@ -263,6 +273,8 @@ class LiveChannel {
     String? description,
     bool? isLive,
     int? viewers,
+    String? subCategory,
+    List<String>? states,
   }) {
     return LiveChannel(
       id: id ?? this.id,
@@ -273,6 +285,8 @@ class LiveChannel {
       description: description ?? this.description,
       isLive: isLive ?? this.isLive,
       viewers: viewers ?? this.viewers,
+      subCategory: subCategory ?? this.subCategory,
+      states: states ?? this.states,
     );
   }
 

@@ -3,6 +3,8 @@ import 'package:samachar_plus_ott_app/constants.dart';
 import 'package:samachar_plus_ott_app/models.dart';
 import 'package:samachar_plus_ott_app/widgets/channel_card.dart';
 import 'package:samachar_plus_ott_app/components/live_video_player.dart';
+import 'package:provider/provider.dart';
+import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 
 class LiveNewsScreen extends StatefulWidget {
   const LiveNewsScreen({super.key});
@@ -18,6 +20,9 @@ class _LiveNewsScreenState extends State<LiveNewsScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NewsProvider>(context, listen: false).setSelectedRegion('NATIONAL');
+    });
     _loadChannels();
   }
 

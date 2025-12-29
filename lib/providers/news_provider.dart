@@ -22,6 +22,7 @@ class NewsProvider extends ChangeNotifier {
   String _selectedCategory = 'All';
   String _searchQuery = '';
   bool _usingSupabase = false; // Track which data source is being used
+  String _selectedRegion = 'NATIONAL'; // 'NATIONAL' or 'REGIONAL'
 
   // Public interface - same as before migration
   List<NewsArticle> get articles => _articles;
@@ -32,6 +33,7 @@ class NewsProvider extends ChangeNotifier {
   String get selectedCategory => _selectedCategory;
   String get searchQuery => _searchQuery;
   bool get isUsingSupabase => _usingSupabase; // New property to track data source
+  String get selectedRegion => _selectedRegion;
 
   NewsProvider() {
     _initRealTimeSubscriptions();
@@ -178,12 +180,17 @@ class NewsProvider extends ChangeNotifier {
   /// Filter articles based on category and search query
   void _filterArticles() {
     _filteredArticles = _articles.where((article) {
-      bool matchesCategory = _selectedCategory == 'All' || article.category == _selectedCategory;
       bool matchesSearch = _searchQuery.isEmpty ||
           article.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           article.summary.toLowerCase().contains(_searchQuery.toLowerCase());
+
+      if (_searchQuery.isNotEmpty) {
+        return matchesSearch;
+      }
       
-      return matchesCategory && matchesSearch;
+      bool matchesCategory = _selectedCategory == 'All' || article.category == _selectedCategory;
+      
+      return matchesCategory;
     }).toList();
 
     // Sort by published date (newest first)
@@ -192,9 +199,18 @@ class NewsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Refresh articles (reload from source)
   Future<void> refreshArticles() async {
     await loadArticles();
+  }
+
+  /// Set selected region (NATIONAL or REGIONAL)
+  void setSelectedRegion(String region) {
+    if (_selectedRegion != region) {
+      _selectedRegion = region;
+      // We don't necessarily need to reload data if the screens handle their own loading based on route
+      // But we notify listeners so UniButton can update
+      notifyListeners();
+    }
   }
 
   /// Get unique categories from available articles

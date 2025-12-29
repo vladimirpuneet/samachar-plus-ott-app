@@ -48,19 +48,35 @@ final _router = GoRouter(
       routes: [
         GoRoute(
           path: '/',
-          builder: (context, state) => const RegionalNewsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context, 
+            state: state, 
+            child: const RegionalNewsScreen(),
+          ),
         ),
         GoRoute(
           path: '/national',
-          builder: (context, state) => const NationalNewsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+             context: context, 
+             state: state, 
+             child: const NationalNewsScreen(),
+          ),
         ),
         GoRoute(
           path: '/live',
-          builder: (context, state) => const LiveNewsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+             context: context, 
+             state: state, 
+             child: const LiveNewsScreen(),
+          ),
         ),
         GoRoute(
           path: '/regional-live',
-          builder: (context, state) => const RegionalLiveScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+             context: context, 
+             state: state, 
+             child: const RegionalLiveScreen(),
+          ),
         ),
         GoRoute(
           path: '/profile',
@@ -89,6 +105,54 @@ final _router = GoRouter(
     ),
   ],
 );
+
+CustomTransitionPage _buildPageWithTransition({
+  required BuildContext context,
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage(
+    key: ValueKey(state.uri.toString()), // Force uniqueness based on URI
+    child: child,
+    transitionDuration: const Duration(milliseconds: 350), // Slightly slower for visibility
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final extraRaw = state.extra;
+      final Map<String, dynamic>? extra = extraRaw is Map ? Map<String, dynamic>.from(extraRaw) : null;
+      final transitionType = extra?['transition'] as String?;
+
+      if (transitionType == null) {
+        return FadeTransition(opacity: animation, child: child);
+      }
+
+      Offset begin = Offset.zero;
+
+      if (transitionType == 'vertical') {
+        // Vertical Logic
+        final isRegional = state.uri.toString() == '/' || state.uri.toString() == '/regional-live';
+        // Regional (Bottom) -> Enter from Bottom (0, 1)
+        // National (Top) -> Enter from Top (0, -1)
+        begin = isRegional ? const Offset(0.0, 1.0) : const Offset(0.0, -1.0);
+      } else if (transitionType == 'horizontal') {
+        // Horizontal Logic
+        final isLive = state.uri.toString().contains('live');
+        // Live (Left) -> Enter from Left (-1, 0)
+        // News (Right) -> Enter from Right (1, 0)
+        begin = isLive ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
+      } else {
+         return FadeTransition(opacity: animation, child: child);
+      }
+
+      const curve = Curves.easeInOut;
+      var tween = Tween(begin: begin, end: Offset.zero).chain(CurveTween(curve: curve));
+      var offsetAnimation = animation.drive(tween);
+
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

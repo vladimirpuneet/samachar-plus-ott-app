@@ -4,6 +4,7 @@ import 'package:video_player/video_player.dart';
 import 'package:samachar_plus_ott_app/models.dart';
 import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/components/live_controls.dart';
+import 'package:samachar_plus_ott_app/components/live_bottom_bar.dart';
 
 class LiveVideoPlayer extends StatefulWidget {
   final LiveChannel channel;
@@ -45,6 +46,7 @@ class _LiveVideoPlayerState extends State<LiveVideoPlayer> {
         videoPlayerController: _videoPlayerController,
         autoPlay: true,
         isLive: true,
+        allowedScreenSleep: false,
         showControls: true, // Enable controls logic
         customControls: LiveControls(
           channel: widget.channel,
@@ -109,22 +111,44 @@ class _LiveVideoPlayerState extends State<LiveVideoPlayer> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Stack(
-                    children: [
-                      if (_chewieController != null && _chewieController!.videoPlayerController.value.isInitialized)
-                        Chewie(controller: _chewieController!)
-                      else
-                        const CustomSpinner(color: Colors.white),
-                      
-                      if (_isLoading)
-                        const CustomSpinner(color: Colors.white),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Video Player Area
+                    AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: Stack(
+                        children: [
+                          if (_chewieController != null && _chewieController!.videoPlayerController.value.isInitialized)
+                            Chewie(controller: _chewieController!)
+                          else
+                            const CustomSpinner(color: Colors.white),
+                          
+                          if (_isLoading)
+                            const CustomSpinner(color: Colors.white),
 
-                      if (_error != null)
-                        Center(child: Text(_error!, style: const TextStyle(color: Colors.white))),
-                    ],
-                  ),
+                          if (_error != null)
+                            Center(child: Text(_error!, style: const TextStyle(color: Colors.white))),
+                        ],
+                      ),
+                    ),
+                    
+                    // Controls Area (Non-overlapping)
+                    if (!_isLoading && _chewieController != null)
+                      AnimatedBuilder(
+                        animation: _chewieController!,
+                        builder: (context, child) {
+                          if (_chewieController!.isFullScreen) {
+                            return const SizedBox.shrink();
+                          }
+                          return LiveBottomBar(
+                            channel: widget.channel,
+                            videoPlayerController: _videoPlayerController,
+                            chewieController: _chewieController,
+                          );
+                        },
+                      ),
+                  ],
                 ),
               ),
             ),

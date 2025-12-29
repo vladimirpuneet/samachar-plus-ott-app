@@ -5,6 +5,8 @@ import 'package:samachar_plus_ott_app/models.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
 import 'package:samachar_plus_ott_app/components/live_video_player.dart';
 import 'package:samachar_plus_ott_app/widgets/channel_card.dart';
+import 'package:provider/provider.dart';
+import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 
 class RegionalLiveScreen extends StatefulWidget {
   const RegionalLiveScreen({super.key});
@@ -20,6 +22,9 @@ class _RegionalLiveScreenState extends State<RegionalLiveScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NewsProvider>(context, listen: false).setSelectedRegion('REGIONAL');
+    });
     _loadChannels();
   }
 

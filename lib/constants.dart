@@ -5,7 +5,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-1',
     name: 'Aaj Tak',
-    logoUrl: 'assets/images/channels/live-1.png',
+    logoAssetId: 'assets/images/channels/live-1.png',
     streamUrl: 'https://aajtaklive-amd.akamaized.net/hls/live/2014416/aajtak/aajtaklive/live_720p/chunks.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -13,7 +13,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-2',
     name: 'ABP News',
-    logoUrl: 'assets/images/channels/live-2.png',
+    logoAssetId: 'assets/images/channels/live-2.png',
     streamUrl: 'https://d2l4ar6y3mrs4k.cloudfront.net/live-streaming/abpnews-livetv/master_720.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -21,7 +21,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-3',
     name: 'DD News',
-    logoUrl: 'assets/images/channels/live-3.jpg',
+    logoAssetId: 'assets/images/channels/live-3.jpg',
     streamUrl: 'https://playhls.media.nic.in/hls/live/ddnews/ddnews.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -29,7 +29,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-4',
     name: 'News18 India',
-    logoUrl: 'assets/images/channels/live-4.png',
+    logoAssetId: 'assets/images/channels/live-4.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/News18_India_NW18_MOB/output01/News18_India_NW18_MOB-audio_98835_eng=98800-video=3724000.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -37,7 +37,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-5',
     name: 'NDTV India',
-    logoUrl: 'assets/images/channels/live-5.png',
+    logoAssetId: 'assets/images/channels/live-5.png',
     streamUrl: 'https://ndtvindiaelemarchana.akamaized.net/hls/live/2003679-b/ndtvindia/masterb_720p@3.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -45,7 +45,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-6',
     name: 'Zee News',
-    logoUrl: 'assets/images/channels/live-6.png',
+    logoAssetId: 'assets/images/channels/live-6.png',
     streamUrl: 'https://dknttpxmr0dwf.cloudfront.net/index_57.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -53,7 +53,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-7',
     name: 'Zee Bharat',
-    logoUrl: 'assets/images/channels/live-7.png',
+    logoAssetId: 'assets/images/channels/live-7.png',
     streamUrl: 'https://d1hp2yai3k4ork.cloudfront.net/index_4.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -61,7 +61,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-8',
     name: 'Republic Bharat',
-    logoUrl: 'assets/images/channels/live-8.png',
+    logoAssetId: 'assets/images/channels/live-8.png',
     streamUrl: 'https://vg-republictvlive.akamaized.net/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/vglive-sk-275673/main.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -69,7 +69,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-9',
     name: 'India TV',
-    logoUrl: 'assets/images/channels/live-9.png',
+    logoAssetId: 'assets/images/channels/live-9.png',
     streamUrl: 'https://pl-indiatvnews.akamaized.net/out/v1/db79179b608641ceaa5a4d0dd0dca8da/index_3.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -77,7 +77,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-10',
     name: 'News 24',
-    logoUrl: 'assets/images/channels/live-10.png',
+    logoAssetId: 'assets/images/channels/live-10.png',
     streamUrl: 'https://vidcdn.vidgyor.com/news24-origin/liveabr/news24-origin/live_720p/chunks.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -85,7 +85,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-11',
     name: 'TV9 Bharatvarsh',
-    logoUrl: 'assets/images/channels/live-11.png',
+    logoAssetId: 'assets/images/channels/live-11.png',
     streamUrl: 'https://dyjmyiv3bp2ez.cloudfront.net/pub-iotv9hinjzgtpe/liveabr/pub-iotv9hinjzgtpe/live_720p/chunks.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -93,7 +93,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-46',
     name: 'Times Now Navbharat',
-    logoUrl: 'assets/images/channels/live-46.jpg',
+    logoAssetId: 'assets/images/channels/live-46.jpg',
     streamUrl: 'https://amg01448-samsungin-tinnavbharat-samsungin-ad-m8.amagi.tv/playlist/amg01448-samsungin-tinnavbharat-samsungin/playlist.m3u8',
     category: 'NATIONAL',
     subCategory: 'HINDI',
@@ -103,7 +103,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-12',
     name: 'WION',
-    logoUrl: 'assets/images/channels/live-12.png',
+    logoAssetId: 'assets/images/channels/live-12.png',
     streamUrl: 'https://d7x8z4yuq42qn.cloudfront.net/index_7.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -111,7 +111,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-13',
     name: 'India Today',
-    logoUrl: 'assets/images/channels/live-13.png',
+    logoAssetId: 'assets/images/channels/live-13.png',
     streamUrl: 'https://feeds.intoday.in/hltapps/api/master.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -119,7 +119,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-14',
     name: 'CNN News18',
-    logoUrl: 'assets/images/channels/live-14.png',
+    logoAssetId: 'assets/images/channels/live-14.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/CNN_News18_NW18_MOB/output01/CNN_News18_NW18_MOB-audio_98835_hin=98800-video=2293600.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -127,7 +127,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-15',
     name: 'NDTV 24x7',
-    logoUrl: 'assets/images/channels/live-15.png',
+    logoAssetId: 'assets/images/channels/live-15.png',
     streamUrl: 'https://ndtv24x7elemarchana.akamaized.net/hls/live/2003678-b/ndtv24x7/masterb_720p@3.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -135,7 +135,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-16',
     name: 'Times Now',
-    logoUrl: 'assets/images/channels/live-16.jpg',
+    logoAssetId: 'assets/images/channels/live-16.jpg',
     streamUrl: 'https://dztlhgid9me95.cloudfront.net/live-tv/Vidgyor/timesnow/live_720p/chunks.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -143,7 +143,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-17',
     name: 'Republic TV',
-    logoUrl: 'assets/images/channels/live-17.png',
+    logoAssetId: 'assets/images/channels/live-17.png',
     streamUrl: 'https://d3qs3d2rkhfqrt.cloudfront.net/out/v1/2e31d831f08640ff92f65003bdc89991/index.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -151,7 +151,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-18',
     name: 'Sansad TV',
-    logoUrl: 'assets/images/channels/live-18.png',
+    logoAssetId: 'assets/images/channels/live-18.png',
     streamUrl: 'https://playhls.media.nic.in/live/rstv-360p/index.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -159,7 +159,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-19',
     name: 'DD India',
-    logoUrl: 'assets/images/channels/live-19.jpg',
+    logoAssetId: 'assets/images/channels/live-19.jpg',
     streamUrl: 'https://test-yupptv.cachefly.net/120723/smil:ddindiahd.smil/chunklist_b896000.m3u8',
     category: 'NATIONAL',
     subCategory: 'ENGLISH',
@@ -169,7 +169,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-20',
     name: 'NDTV Profit',
-    logoUrl: 'assets/images/channels/live-20.png',
+    logoAssetId: 'assets/images/channels/live-20.png',
     streamUrl: 'https://ndtvprofit.akamaized.net/hls/live/2107404/ndtvprofit/chunklist_4.m3u8',
     category: 'NATIONAL',
     subCategory: 'BUSINESS',
@@ -177,7 +177,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-21',
     name: 'Zee Business',
-    logoUrl: 'assets/images/channels/live-21.png',
+    logoAssetId: 'assets/images/channels/live-21.png',
     streamUrl: 'https://dwby15d04agvq.cloudfront.net/index_5.m3u8',
     category: 'NATIONAL',
     subCategory: 'BUSINESS',
@@ -185,7 +185,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-22',
     name: 'CNBC AWAAZ',
-    logoUrl: 'assets/images/channels/live-22.png',
+    logoAssetId: 'assets/images/channels/live-22.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/CNBC_Awaaz_NW18_MOB/output01/CNBC_Awaaz_NW18_MOB-audio_98834_hin=98800-video=3724000.m3u8',
     category: 'NATIONAL',
     subCategory: 'BUSINESS',
@@ -195,7 +195,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-31',
     name: 'NDTV Madhya Pradesh Chhattisgarh',
-    logoUrl: 'assets/images/channels/live-31.png',
+    logoAssetId: 'assets/images/channels/live-31.png',
     streamUrl: 'https://ndtvregional.akamaized.net/hls/live/2102726-b/ndtvmpcg/chunklist_3.m3u8',
     category: 'REGIONAL',
     states: ['Madhya Pradesh', 'Chhattisgarh'],
@@ -203,7 +203,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-32',
     name: 'NDTV Rajasthan',
-    logoUrl: 'assets/images/channels/live-32.png',
+    logoAssetId: 'assets/images/channels/live-32.png',
     streamUrl: 'https://ndtvregional.akamaized.net/hls/live/2102726-b/ndtvraj/master_1.m3u8',
     category: 'REGIONAL',
     states: ['Rajasthan'],
@@ -211,7 +211,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-33',
     name: 'News18 Bihar-Jharkhand',
-    logoUrl: 'assets/images/channels/live-33.png',
+    logoAssetId: 'assets/images/channels/live-33.png',
     streamUrl: '',
     category: 'REGIONAL',
     states: ['Bihar', 'Jharkhand'],
@@ -219,7 +219,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-34',
     name: 'News18 Madhya Pradesh Chhattisgarh',
-    logoUrl: 'assets/images/channels/live-34.png',
+    logoAssetId: 'assets/images/channels/live-34.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/News18_MP_Chhattisgarh_NW18_MOB/output01/News18_MP_Chhattisgarh_NW18_MOB-audio_98835_hin=98800-video=3724000.m3u8',
     category: 'REGIONAL',
     states: ['Madhya Pradesh', 'Chhattisgarh'],
@@ -227,7 +227,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-35',
     name: 'News18 Rajasthan',
-    logoUrl: 'assets/images/channels/live-35.png',
+    logoAssetId: 'assets/images/channels/live-35.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/News18_Rajasthan_NW18_MOB/output01/News18_Rajasthan_NW18_MOB-audio_98835_hin=98800-video=3724000.m3u8',
     category: 'REGIONAL',
     states: ['Rajasthan'],
@@ -235,7 +235,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-36',
     name: 'News18 Uttar Pradesh Uttarakhand',
-    logoUrl: 'assets/images/channels/live-36.png',
+    logoAssetId: 'assets/images/channels/live-36.png',
     streamUrl: 'https://nw18live.cdn.jio.com/bpk-tv/News18_UP_Uttarakhand_NW18_MOB/output01/News18_UP_Uttarakhand_NW18_MOB-audio_98835_eng=98800-video=3724000.m3u8',
     category: 'REGIONAL',
     states: ['Uttar Pradesh', 'Uttarakhand'],
@@ -243,7 +243,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-37',
     name: 'Z Bihar Jharkhand',
-    logoUrl: 'assets/images/channels/live-37.png',
+    logoAssetId: 'assets/images/channels/live-37.png',
     streamUrl: 'https://d3vmwjy7v49lo5.cloudfront.net/index_4.m3u8',
     category: 'REGIONAL',
     states: ['Bihar', 'Jharkhand'],
@@ -251,7 +251,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-39',
     name: 'Z Madhya Pradesh Chhattisgarh',
-    logoUrl: 'assets/images/channels/live-39.png',
+    logoAssetId: 'assets/images/channels/live-39.png',
     streamUrl: 'https://d1ek9hdbw9xxcw.cloudfront.net/index_4.m3u8',
     category: 'REGIONAL',
     states: ['Madhya Pradesh', 'Chhattisgarh'],
@@ -259,7 +259,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-40',
     name: 'Z Rajasthan',
-    logoUrl: 'assets/images/channels/live-40.png',
+    logoAssetId: 'assets/images/channels/live-40.png',
     streamUrl: 'https://vg-zeefta.akamaized.net/ptnr-yupptv/title-zeerajashthannews/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/8e864b9a-1681-41a0-99a6-387490bc5b24/main.m3u8',
     category: 'REGIONAL',
     states: ['Rajasthan'],
@@ -267,7 +267,7 @@ final List<LiveChannel> LIVE_CHANNELS = [
   LiveChannel(
     id: 'live-41',
     name: 'Z Uttar Pradesh Uttarakhand',
-    logoUrl: 'assets/images/channels/live-41.png',
+    logoAssetId: 'assets/images/channels/live-41.png',
     streamUrl: 'https://duw35ict5q7th.cloudfront.net/index_3.m3u8',
     category: 'REGIONAL',
     states: ['Uttar Pradesh', 'Uttarakhand'],
