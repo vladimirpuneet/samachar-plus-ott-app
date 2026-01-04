@@ -151,6 +151,35 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> bypassLogin() async {
+    _setLoading(true);
+    _setError(null);
+    
+    // Simulate a successful login with a mock user
+    _currentUser = {
+      'id': 'mock-dev-id',
+      'email': 'dev@samacharplus.com',
+    };
+    
+    // Create a robust mock profile
+    _userProfile = UserModel(
+      uid: 'mock-dev-id',
+      email: 'dev@samacharplus.com',
+      name: 'Developer Tester',
+      phone: '+919999999999',
+      createdAt: DateTime.now(),
+      preferences: UserPreferences(
+        categories: ['National', 'Local'],
+        state: 'Rajasthan',
+        district: 'Jaipur',
+        notificationsEnabled: true,
+      ),
+    );
+    
+    _setLoading(false);
+    notifyListeners();
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

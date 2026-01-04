@@ -6,17 +6,16 @@ import 'package:samachar_plus_ott_app/components/header.dart';
 import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 import 'package:samachar_plus_ott_app/screens/article_screen.dart';
-import 'package:samachar_plus_ott_app/screens/live_news_screen.dart';
-import 'package:samachar_plus_ott_app/screens/national_news_screen.dart';
-import 'package:samachar_plus_ott_app/screens/notifications_screen.dart';
+import 'package:samachar_plus_ott_app/screens/live_tv_screen.dart';
+import 'package:samachar_plus_ott_app/screens/news_screen.dart';
 import 'package:samachar_plus_ott_app/screens/otp_verification_screen.dart';
 import 'package:samachar_plus_ott_app/screens/phone_input_screen.dart';
 import 'package:samachar_plus_ott_app/screens/profile_screen.dart';
-import 'package:samachar_plus_ott_app/screens/regional_live_screen.dart';
-import 'package:samachar_plus_ott_app/screens/regional_news_screen.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
 import 'package:samachar_plus_ott_app/env.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:samachar_plus_ott_app/services/geographic_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +25,9 @@ void main() async {
     anonKey: Env.supabaseAnonKey,
   );
 
+  // Initialize geographic cache early
+  await GeographicService.instance.refreshCache();
+
   runApp(const MyApp());
 }
 
@@ -34,7 +36,7 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/live',
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
@@ -47,44 +49,28 @@ final _router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: '/',
-          pageBuilder: (context, state) => _buildPageWithTransition(
-            context: context, 
-            state: state, 
-            child: const RegionalNewsScreen(),
-          ),
-        ),
-        GoRoute(
-          path: '/national',
-          pageBuilder: (context, state) => _buildPageWithTransition(
-             context: context, 
-             state: state, 
-             child: const NationalNewsScreen(),
-          ),
-        ),
-        GoRoute(
           path: '/live',
           pageBuilder: (context, state) => _buildPageWithTransition(
-             context: context, 
-             state: state, 
-             child: const LiveNewsScreen(),
+            context: context,
+            state: state,
+            child: const LiveTVScreen(),
           ),
         ),
         GoRoute(
-          path: '/regional-live',
+          path: '/news',
           pageBuilder: (context, state) => _buildPageWithTransition(
-             context: context, 
-             state: state, 
-             child: const RegionalLiveScreen(),
+            context: context,
+            state: state,
+            child: const NewsScreen(),
           ),
         ),
         GoRoute(
           path: '/profile',
-          builder: (context, state) => const ProfileScreen(),
-        ),
-        GoRoute(
-          path: '/notifications',
-          builder: (context, state) => const NotificationsScreen(),
+          pageBuilder: (context, state) => _buildPageWithTransition(
+            context: context,
+            state: state,
+            child: const ProfileScreen(),
+          ),
         ),
       ],
     ),
@@ -112,9 +98,9 @@ CustomTransitionPage _buildPageWithTransition({
   required Widget child,
 }) {
   return CustomTransitionPage(
-    key: ValueKey(state.uri.toString()), // Force uniqueness based on URI
+    key: ValueKey(state.uri.toString()),
     child: child,
-    transitionDuration: const Duration(milliseconds: 350), // Slightly slower for visibility
+    transitionDuration: const Duration(milliseconds: 350),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final extraRaw = state.extra;
       final Map<String, dynamic>? extra = extraRaw is Map ? Map<String, dynamic>.from(extraRaw) : null;
@@ -126,20 +112,14 @@ CustomTransitionPage _buildPageWithTransition({
 
       Offset begin = Offset.zero;
 
-      if (transitionType == 'vertical') {
-        // Vertical Logic
-        final isRegional = state.uri.toString() == '/' || state.uri.toString() == '/regional-live';
-        // Regional (Bottom) -> Enter from Bottom (0, 1)
-        // National (Top) -> Enter from Top (0, -1)
-        begin = isRegional ? const Offset(0.0, 1.0) : const Offset(0.0, -1.0);
-      } else if (transitionType == 'horizontal') {
-        // Horizontal Logic
-        final isLive = state.uri.toString().contains('live');
-        // Live (Left) -> Enter from Left (-1, 0)
-        // News (Right) -> Enter from Right (1, 0)
-        begin = isLive ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
+      if (transitionType == 'nav_right') {
+        // Navigating to Right -> Enter from Right
+        begin = const Offset(1.0, 0.0);
+      } else if (transitionType == 'nav_left') {
+        // Navigating to Left -> Enter from Left
+        begin = const Offset(-1.0, 0.0);
       } else {
-         return FadeTransition(opacity: animation, child: child);
+        return FadeTransition(opacity: animation, child: child);
       }
 
       const curve = Curves.easeInOut;
@@ -153,6 +133,7 @@ CustomTransitionPage _buildPageWithTransition({
     },
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

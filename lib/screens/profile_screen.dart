@@ -4,6 +4,8 @@ import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/constants.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
+import 'package:samachar_plus_ott_app/services/geographic_service.dart';
+import 'package:samachar_plus_ott_app/models/geographic_model.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -24,15 +26,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _state = '';
   String _district = '';
   List<String> _selectedCategories = [];
+  List<String> _availableCategories = [];
 
-  final List<String> _states = ['Rajasthan', 'Uttar Pradesh', 'Madhya Pradesh', 'Bihar', 'Jharkhand'];
-  final Map<String, List<String>> _districts = {
-    'Rajasthan': ['Jaipur', 'Jodhpur', 'Udaipur'],
-    'Uttar Pradesh': ['Lucknow', 'Kanpur', 'Agra'],
-    'Madhya Pradesh': ['Bhopal', 'Indore', 'Gwalior'],
-    'Bihar': ['Patna', 'Gaya', 'Bhagalpur'],
-    'Jharkhand': ['Ranchi', 'Jamshedpur', 'Dhanbad'],
-  };
+  List<GeoState> _allStates = [];
+  String? _selectedStateId;
 
   @override
   void initState() {
@@ -43,6 +40,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _loadUserData() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userProfile = authProvider.userProfile;
+    
+    // Load states from cache
+    _allStates = GeographicService.instance.getStates();
+
     if (userProfile != null) {
       setState(() {
         _name = userProfile.name;
@@ -50,6 +51,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _state = userProfile.preferences?.state ?? '';
         _district = userProfile.preferences?.district ?? '';
         _selectedCategories = userProfile.preferences?.categories ?? [];
+        _availableCategories = GeographicService.instance.getCategories();
+        
+        // Find matching state ID if name exists
+        if (_state.isNotEmpty) {
+          try {
+            _selectedStateId = _allStates.firstWhere((s) => s.stateNameEnglish == _state).id;
+          } catch (_) {
+            _selectedStateId = null;
+          }
+        }
       });
     }
   }
@@ -99,13 +110,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildGenderIcon(String gender) {
-    IconData icon = Icons.person;
+    IconData icon = Icons.face_6_rounded;
+    Color color = AppTheme.red500;
+    
     if (gender == 'male') {
-      icon = Icons.male;
+      icon = Icons.face_rounded;
+      color = const Color(0xFF0EA5E9); // Modern sky blue
     } else if (gender == 'female') {
-      icon = Icons.female;
+      icon = Icons.face_3_rounded;
+      color = const Color(0xFFF43F5E); // Modern rose/pink
     }
-    return Icon(icon, size: 40, color: AppTheme.gray500);
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        shape: BoxShape.circle,
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
+      ),
+      child: Icon(icon, size: 36, color: color),
+    );
   }
 
   @override
@@ -120,18 +144,230 @@ class _ProfileScreenState extends State<ProfileScreen> {
       return const Center(child: CustomSpinner());
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white,
+            AppTheme.gray50.withValues(alpha: 0.8),
+            AppTheme.gray100.withValues(alpha: 0.9),
+          ],
+        ),
+      ),
       child: Column(
         children: [
-          if (_isEditing)
-            _buildEditMode()
-          else
-            _buildViewMode(),
+          // TOP HALF: Profile
+          Expanded(
+            flex: 1,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: _isEditing ? _buildEditMode() : _buildViewMode(),
+            ),
+          ),
+          
+          // BOTTOM HALF: Notifications
+          if (!_isEditing)
+            Expanded(
+              flex: 1,
+              child: _buildNotificationsSection(),
+            ),
         ],
       ),
     );
   }
+
+  Widget _buildNotificationsSection() {
+    // Mock notifications data (same as before)
+    final List<Map<String, dynamic>> notifications = [
+      {
+        'title': 'Breaking News!',
+        'body': 'Major policy update announced by the government regarding digital media.',
+        'time': '2 mins ago',
+        'type': 'breaking',
+        'isRead': false,
+      },
+      {
+        'title': 'Local Update: $_district',
+        'body': 'New community center to be inaugurated in your district this weekend.',
+        'time': '1 hour ago',
+        'type': 'local',
+        'isRead': true,
+      },
+      {
+        'title': 'Election Watch',
+        'body': 'Phase 2 of local elections conclude with high voter turnout.',
+        'time': '3 hours ago',
+        'type': 'headline',
+        'isRead': true,
+      },
+      {
+        'title': 'Weather Alert',
+        'body': 'Heavy rainfall expected in the northern regions over the next 48 hours.',
+        'time': '5 hours ago',
+        'type': 'breaking',
+        'isRead': true,
+      },
+      {
+        'title': 'Sporting Glory',
+        'body': 'National team wins the championship in a thrilling final match.',
+        'time': '1 day ago',
+        'type': 'headline',
+        'isRead': true,
+      },
+    ];
+
+    return Container(
+      padding: const EdgeInsets.only(top: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.6),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(25, 10, 20, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.red500.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.notifications_active_rounded, color: AppTheme.red500, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'NOTIFICATIONS',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: AppTheme.gray900,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    'Mark all as read',
+                    style: TextStyle(
+                      color: AppTheme.red500.withValues(alpha: 0.8),
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              itemCount: notifications.length,
+              separatorBuilder: (context, index) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final item = notifications[index];
+                return _buildNotificationItem(item);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationItem(Map<String, dynamic> item) {
+    Color typeColor = AppTheme.gray500;
+    IconData typeIcon = Icons.info_outline;
+
+    if (item['type'] == 'breaking') {
+      typeColor = AppTheme.red500;
+      typeIcon = Icons.auto_awesome_rounded;
+    } else if (item['type'] == 'local') {
+      typeColor = Colors.blue.shade600;
+      typeIcon = Icons.assistant_navigation;
+    } else if (item['type'] == 'headline') {
+      typeColor = Colors.amber.shade700;
+      typeIcon = Icons.stars_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: item['isRead'] ? AppTheme.gray200 : typeColor.withValues(alpha: 0.3),
+          width: item['isRead'] ? 1 : 2,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: typeColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(typeIcon, color: typeColor, size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        item['title'],
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: item['isRead'] ? FontWeight.w600 : FontWeight.w900,
+                          color: AppTheme.gray900,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      item['time'],
+                      style: const TextStyle(fontSize: 11, color: AppTheme.gray500),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item['body'],
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppTheme.gray600,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildSignInPrompt() {
     return Center(
@@ -247,19 +483,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               Column(
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: AppTheme.gray500),
-                    onPressed: () => setState(() => _isEditing = true),
+                   Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.gray100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: IconButton(
+                      icon: const Icon(Icons.edit_note_rounded, color: AppTheme.gray700),
+                      onPressed: () => setState(() => _isEditing = true),
+                    ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.logout, color: AppTheme.gray500),
-                    onPressed: () async {
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppTheme.red500.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.power_settings_new_rounded, color: AppTheme.red500),
+                      onPressed: () async {
                       final authProvider = Provider.of<AuthProvider>(context, listen: false);
                       await authProvider.signOut();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Signed out successfully')),
                       );
                     },
+                    ),
                   ),
                 ],
               ),
@@ -343,17 +592,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ButtonSegment(
                   value: 'male',
                   label: Text('Male'),
-                  icon: Icon(Icons.male),
+                  icon: Icon(Icons.male_rounded),
                 ),
                 ButtonSegment(
                   value: 'female',
                   label: Text('Female'),
-                  icon: Icon(Icons.female),
+                  icon: Icon(Icons.female_rounded),
                 ),
                 ButtonSegment(
                   value: 'other',
                   label: Text('Other'),
-                  icon: Icon(Icons.person),
+                  icon: Icon(Icons.face_retouching_natural_rounded),
                 ),
               ],
               selected: {_gender},
@@ -403,15 +652,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: NEWS_CATEGORIES.map((cat) {
+            children: _availableCategories.map((cat) {
               final isSelected = _selectedCategories.contains(cat);
               return ChoiceChip(
                 label: Text(cat),
                 selected: isSelected,
                 onSelected: (_) => _toggleCategory(cat),
                 selectedColor: AppTheme.red500,
+                backgroundColor: AppTheme.gray50,
+                side: BorderSide(
+                  color: isSelected ? Colors.transparent : AppTheme.gray200,
+                ),
                 labelStyle: TextStyle(
                   color: isSelected ? Colors.white : AppTheme.gray700,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               );
             }).toList(),
@@ -428,14 +682,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               labelText: 'State',
               border: OutlineInputBorder(),
             ),
-            initialValue: _state.isEmpty ? null : _state,
-            items: _states.map((s) {
-              return DropdownMenuItem(value: s, child: Text(s));
+            // Ensure value exists in items to avoid crash
+            value: _allStates.any((s) => s.stateNameEnglish == _state) ? _state : null,
+            items: _allStates.map((s) {
+              return DropdownMenuItem(value: s.stateNameEnglish, child: Text(s.stateNameEnglish));
             }).toList(),
             onChanged: (value) {
               setState(() {
                 _state = value ?? '';
                 _district = '';
+                try {
+                  _selectedStateId = _allStates.firstWhere((s) => s.stateNameEnglish == _state).id;
+                } catch (_) {
+                  _selectedStateId = null;
+                }
               });
             },
           ),
@@ -446,11 +706,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               labelText: 'District',
               border: OutlineInputBorder(),
             ),
-            initialValue: _district.isEmpty ? null : _district,
-            items: _state.isEmpty
+            // Ensure value exists in items to avoid crash
+            value: (_selectedStateId != null && 
+                    GeographicService.instance.getDistricts(_selectedStateId!)
+                        .any((d) => d.districtNameEnglish == _district)) 
+                ? _district : null,
+            items: _selectedStateId == null
                 ? []
-                : (_districts[_state] ?? []).map((d) {
-                    return DropdownMenuItem(value: d, child: Text(d));
+                : GeographicService.instance.getDistricts(_selectedStateId!).map((d) {
+                    return DropdownMenuItem(value: d.districtNameEnglish, child: Text(d.districtNameEnglish));
                   }).toList(),
             onChanged: (value) => setState(() => _district = value ?? ''),
           ),

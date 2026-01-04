@@ -35,14 +35,13 @@ class _HeaderState extends State<Header> {
 
     final newsProvider = Provider.of<NewsProvider>(context, listen: false);
     
-    // Set region to 'NATIONAL' so UniButton logic follows suit
-    newsProvider.setSelectedRegion('NATIONAL');
+    // Disable district filter when searching
+    newsProvider.setDistrictFilter(false);
     
-    // go to national screen
-    context.go('/national');
+    // Navigate to news screen
+    context.go('/news');
     
-    // Set query AFTER navigation or concurrent with it. 
-    // The NationalNewsScreen will init and set category to NATIONAL, but filterArticles will prioritize the search query if it's set.
+    // Set query AFTER navigation
     newsProvider.setSearchQuery(query);
   }
 
@@ -63,7 +62,7 @@ class _HeaderState extends State<Header> {
       title: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: InkWell(
-          onTap: widget.onLogoClick ?? () => context.go('/'),
+          onTap: widget.onLogoClick ?? () => context.go('/live'),
           child: SizedBox(
             height: 56, // h-14 = 3.5rem = 56px
             child: Image.asset(

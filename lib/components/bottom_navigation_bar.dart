@@ -1,34 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:samachar_plus_ott_app/components/icons.dart';
-import 'package:samachar_plus_ott_app/components/uni_button.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:samachar_plus_ott_app/providers/news_provider.dart';
 
 class BottomNavigationBar extends StatelessWidget {
   final VoidCallback? onProfileClick;
-  final int unreadCount;
 
   const BottomNavigationBar({
     super.key,
     this.onProfileClick,
-    this.unreadCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
     final String location = GoRouterState.of(context).uri.toString();
-    final bool isProfileActive = location == '/profile';
-    final bool isNotificationsActive = location == '/notifications';
-    final bool isLiveActive = location.contains('live'); 
-    final bool isNewsActive = (location == '/' || location == '/national') && !isLiveActive;
+    final newsProvider = Provider.of<NewsProvider>(context);
     
-    // According to requests:
-    // Profile -> Red if active
-    // Notifications -> Red if active
-    // UniButton (Live TV / News) -> Red highlight is handled inside UniButton itself.
+    final bool isLiveActive = location == '/live';
+    final bool isNewsActive = location == '/news';
+    final bool isProfileActive = location == '/profile';
+    
+    // Get screen width for calculating button widths
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double liveWidth = screenWidth * 0.25;
+    final double newsWidth = screenWidth * 0.50;
+    final double profileWidth = screenWidth * 0.25;
 
     return Container(
-      height: 80, // Adjust height as needed
+      height: 80,
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -41,61 +42,62 @@ class BottomNavigationBar extends StatelessWidget {
       ),
       child: SafeArea(
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            // Profile Button
+            // LIVE TV Button (25%)
             InkWell(
-              onTap: onProfileClick ?? () => context.go('/profile'),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: UserIcon(
-                  size: 32,
-                  color: isProfileActive ? AppTheme.red500 : AppTheme.gray500,
+              onTap: () {
+                if (location == '/live') return;
+                String transition = 'fade';
+                if (location == '/news') {
+                  transition = 'nav_left';
+                } else if (location == '/profile') {
+                  transition = 'nav_left';
+                }
+                context.go('/live', extra: <String, dynamic>{'transition': transition});
+              },
+              child: Container(
+                width: liveWidth,
+                alignment: Alignment.center,
+                child: LiveIcon(
+                  width: 70,
+                  height: 30,
+                  color: isLiveActive ? AppTheme.red500 : AppTheme.gray500,
                 ),
               ),
             ),
 
-            // UniButton (Center)
-            const UniButton(),
-
-            // Notifications Button
+            // SIMPLE NEWS Button (50%)
             InkWell(
-              onTap: () => context.go('/notifications'),
-              child: Stack(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: BellIcon(
-                      size: 32,
-                      color: isNotificationsActive ? AppTheme.red500 : AppTheme.gray500,
-                    ),
-                  ),
-                  if (unreadCount > 0)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: AppTheme.red500,
-                          shape: BoxShape.circle,
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 16,
-                          minHeight: 16,
-                        ),
-                        child: Text(
-                          '$unreadCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
+              onTap: () {
+                if (location != '/news') {
+                  context.go('/news', extra: <String, dynamic>{'transition': isLiveActive ? 'nav_right' : 'nav_left'});
+                }
+              },
+              child: Container(
+                width: newsWidth,
+                alignment: Alignment.center,
+                child: TextNewsIcon(
+                  color: isNewsActive ? AppTheme.red500 : AppTheme.gray500,
+                ),
+              ),
+            ),
+
+
+
+
+            // PROFILE Button (25%)
+            InkWell(
+              onTap: onProfileClick ?? () {
+                if (location == '/profile') return;
+                context.go('/profile', extra: <String, dynamic>{'transition': 'nav_right'});
+              },
+              child: Container(
+                width: profileWidth,
+                alignment: Alignment.center,
+                child: UserIcon(
+                  size: 32,
+                  color: isProfileActive ? AppTheme.red500 : AppTheme.gray500,
+                ),
               ),
             ),
           ],

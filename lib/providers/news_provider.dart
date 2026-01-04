@@ -23,6 +23,8 @@ class NewsProvider extends ChangeNotifier {
   String _searchQuery = '';
   bool _usingSupabase = false; // Track which data source is being used
   String _selectedRegion = 'NATIONAL'; // 'NATIONAL' or 'REGIONAL'
+  bool _isDistrictFilterEnabled = false; // Track if district filter is enabled
+  String? _userDistrict; // User's selected district from profile
 
   // Public interface - same as before migration
   List<NewsArticle> get articles => _articles;
@@ -34,6 +36,9 @@ class NewsProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   bool get isUsingSupabase => _usingSupabase; // New property to track data source
   String get selectedRegion => _selectedRegion;
+  bool get isDistrictFilterEnabled => _isDistrictFilterEnabled;
+  String? get userDistrict => _userDistrict;
+
 
   NewsProvider() {
     _initRealTimeSubscriptions();
@@ -48,9 +53,11 @@ class NewsProvider extends ChangeNotifier {
     try {
       // Subscribe to home feed updates
       _supabaseNews.subscribeToHomeFeed().listen((articles) {
-        _articles = articles;
-        _usingSupabase = true;
-        _filterArticles();
+        if (articles.isNotEmpty) {
+          _articles = articles;
+          _usingSupabase = true;
+          _filterArticles();
+        }
       });
 
       // Subscribe to live channel updates
@@ -66,34 +73,140 @@ class NewsProvider extends ChangeNotifier {
   }
 
   /// Load articles for home feed
-  ///
-  /// Uses Supabase home feed query with Firebase fallback
   Future<void> loadArticles() async {
     try {
       _setLoading(true);
       _setError(null);
 
-      List<NewsArticle> articles = [];
+      // RICH MOCK DATA for testing premium UI and filtering
+      final List<NewsArticle> mockArticles = [
+        NewsArticle(
+          id: '1',
+          title: 'Politics Pulse: New Legislative Reforms Proposed for Digital Innovation',
+          summary: 'The latest draft of the Digital Innovation Bill suggests significant tax incentives for regional startups and stricter data privacy norms for international tech giants.',
+          content: 'Full content of the politics story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?q=80&w=1000',
+          source: 'Political Desk',
+          publishedAt: DateTime.now().subtract(const Duration(minutes: 45)),
+          category: 'Politics',
+          district: 'Lucknow',
+          tags: ['Politics', 'Reform', 'Digital'],
+          author: 'Aman Singh',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '2',
+          title: 'Tech Alert: Breakthrough in Quantum Computing from Regional University',
+          summary: 'Researchers at the Tech Institute of Rajasthan have announced a breakthrough in quantum chip cooling, potentially reducing energy costs by 40%.',
+          content: 'Full content of the tech story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1000',
+          source: 'Tech Bureau',
+          publishedAt: DateTime.now().subtract(const Duration(hours: 3)),
+          category: 'Technology',
+          district: 'Jaipur',
+          tags: ['Quantum', 'Tech', 'Innovation'],
+          author: 'Priya Verma',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '3',
+          title: 'Sports Exclusive: Final Squad for State Championship Announced',
+          summary: 'The selection committee has finalized the 15-member squad for the upcoming National Games, favoring youthful speed over seasoned experience this season.',
+          content: 'Full content of the sports story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1461896756970-f49c15873223?q=80&w=1000',
+          source: 'Sports Desk',
+          publishedAt: DateTime.now().subtract(const Duration(hours: 5)),
+          category: 'Sports',
+          district: 'Jodhpur',
+          tags: ['Sports', 'Championship', 'Selection'],
+          author: 'Rohan Sharma',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '4',
+          title: 'Crime Watch: Cyber Security Unit Busts Major Phishing Racket',
+          summary: 'A sophisticated cross-border phishing syndicate targeting senior citizens was dismantled in a joint operation by the State Cyber Crime Cell.',
+          content: 'Full content of the crime story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1000',
+          source: 'Police Bulletin',
+          publishedAt: DateTime.now().subtract(const Duration(hours: 10)),
+          category: 'Crime',
+          district: 'Dehradun',
+          tags: ['Crime', 'Cyber', 'Security'],
+          author: 'Vikram Das',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '5',
+          title: 'Local News: Heritage Walk Restoration Projects Nears Completion',
+          summary: 'The restoration of the 200-year-old Stepwell in the old city is 90% complete, set to reopen as a cultural tourism hub by next month.',
+          content: 'Full content of the local story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1524492459426-edcc9034ff60?q=80&w=1000',
+          source: 'Heritage Desk',
+          publishedAt: DateTime.now().subtract(const Duration(hours: 14)),
+          category: 'Local',
+          district: 'Jaipur',
+          tags: ['Local', 'Heritage', 'Tourism'],
+          author: 'Suman Gupta',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '6',
+          title: 'Policy Update: New EV Charging Infrastructure Subsidy Announced',
+          summary: 'To accelerate green transport adoption, the state government has announced a 50% subsidy for commercial EV charging installations.',
+          content: 'Full content of the policy story...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=1000',
+          source: 'Bureau Report',
+          publishedAt: DateTime.now().subtract(const Duration(hours: 22)),
+          category: 'Politics',
+          district: 'Varanasi',
+          tags: ['EV', 'Policy', 'Green'],
+          author: 'Anita Roy',
+          imageAssetIds: [],
+        ),
+        NewsArticle(
+          id: '7',
+          title: 'Tech Review: Is this the Future of Wearable Health Technology?',
+          summary: 'We test the latest modular smartwatch that claims to monitor blood pressure without an inflatable cuff. Here are our findings.',
+          content: 'Full content of the tech review...',
+          featuredImageAssetId: 'https://images.unsplash.com/photo-1510017803434-a899398421b3?q=80&w=1000',
+          source: 'Gadget Guide',
+          publishedAt: DateTime.now().subtract(const Duration(days: 1)),
+          category: 'Technology',
+          district: 'Jaipur',
+          tags: ['Tech', 'Wearable', 'Health'],
+          author: 'Kabir Khan',
+          imageAssetIds: [],
+        ),
+      ];
 
-      // Try Supabase first
-      try {
-        articles = await _supabaseNews.getHomeFeed();
-        _usingSupabase = true;
-      } catch (e) {
-        print('Supabase articles load failed: $e');
-        // Fall through to Firebase fallback
-      }
-
-
-
-      _articles = articles;
+      _articles = List.from(mockArticles);
       _filterArticles();
+
+      // Attempt to load from Supabase but don't clear mock if fails or is empty
+      try {
+        final realArticles = await _supabaseNews.getHomeFeed();
+        if (realArticles != null && realArticles.isNotEmpty) {
+          _articles = realArticles;
+          _usingSupabase = true;
+          _filterArticles();
+        } else {
+          // If DB is empty, ensure mock data is filtered and shown
+          _filterArticles();
+        }
+      } catch (e) {
+        print('Supabase articles load failed: $e. Using mock data.');
+        _filterArticles(); // Fallback filter
+      }
     } catch (e) {
       _setError('Failed to load articles: $e');
     } finally {
+      // Small artificial delay to test shimmer if needed
+      await Future.delayed(const Duration(milliseconds: 800));
       _setLoading(false);
     }
   }
+
 
   /// Load live channels
   ///
@@ -190,7 +303,13 @@ class NewsProvider extends ChangeNotifier {
       
       bool matchesCategory = _selectedCategory == 'All' || article.category == _selectedCategory;
       
-      return matchesCategory;
+      // Apply district filter if enabled
+      bool matchesDistrict = true;
+      if (_isDistrictFilterEnabled && _userDistrict != null && _userDistrict!.isNotEmpty) {
+        matchesDistrict = article.district == _userDistrict;
+      }
+      
+      return matchesCategory && matchesDistrict;
     }).toList();
 
     // Sort by published date (newest first)
@@ -212,6 +331,25 @@ class NewsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Set district filter enabled/disabled
+  void setDistrictFilter(bool enabled) {
+    if (_isDistrictFilterEnabled != enabled) {
+      _isDistrictFilterEnabled = enabled;
+      _filterArticles();
+    }
+  }
+
+  /// Set user's district for filtering
+  void setUserDistrict(String? district) {
+    if (_userDistrict != district) {
+      _userDistrict = district;
+      if (_isDistrictFilterEnabled) {
+        _filterArticles();
+      }
+    }
+  }
+
 
   /// Get unique categories from available articles
   List<String> getCategories() {

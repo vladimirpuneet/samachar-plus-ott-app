@@ -1,6 +1,6 @@
 {
-    "name": "samachar_plus_ott_app",
-    "short_name": "samachar_plus_ott_app",
+    "name": "Samachar Plus",
+    "short_name": "Samachar Plus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

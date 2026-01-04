@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:samachar_plus_ott_app/providers/auth_provider.dart';
 import 'package:samachar_plus_ott_app/widgets/custom_spinner.dart';
 import 'package:samachar_plus_ott_app/theme.dart';
-import 'package:samachar_plus_ott_app/components/uni_button.dart';
 import 'package:go_router/go_router.dart';
 
 class PhoneInputScreen extends StatefulWidget {
@@ -133,6 +132,26 @@ class _PhoneInputScreenState extends State<PhoneInputScreen> {
                   child: Text(
                     authProvider.isLoading ? 'Sending OTP...' : 'Send OTP',
                     style: const TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Bypass login for testing
+              Center(
+                child: TextButton(
+                  onPressed: () async {
+                    await authProvider.bypassLogin();
+                    if (mounted) context.go('/live');
+                  },
+                  child: Text(
+                    'BYPASS LOGIN (DEVELOPER MODE)',
+                    style: TextStyle(
+                      color: AppTheme.gray400,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.1,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
