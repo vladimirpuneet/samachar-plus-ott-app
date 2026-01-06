@@ -23,10 +23,13 @@ class _NewsScreenState extends State<NewsScreen> {
       final newsProvider = Provider.of<NewsProvider>(context, listen: false);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       
-      // Set user's district from their profile
+      // Set user's district and state from their profile
       final userProfile = authProvider.userProfile;
       if (userProfile?.preferences?.district != null) {
         newsProvider.setUserDistrict(userProfile!.preferences!.district);
+      }
+      if (userProfile?.preferences?.state != null) {
+        newsProvider.setUserState(userProfile!.preferences!.state);
       }
       
       // Load all news (not filtered by category)
@@ -42,15 +45,38 @@ class _NewsScreenState extends State<NewsScreen> {
           return const Center(child: CustomSpinner());
         }
 
+        final authProvider = Provider.of<AuthProvider>(context);
+        final userProfile = authProvider.userProfile;
+        
+        // Sync names if they are available in profile but not in newsProvider
+        if (userProfile?.preferences != null) {
+          final profileDistrict = userProfile!.preferences!.district;
+          final profileState = userProfile.preferences!.state;
+          
+          if (profileDistrict.isNotEmpty && profileDistrict != newsProvider.userDistrict) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              newsProvider.setUserDistrict(profileDistrict);
+            });
+          }
+          if (profileState.isNotEmpty && profileState != newsProvider.userState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              newsProvider.setUserState(profileState);
+            });
+          }
+        }
+
         final news = newsProvider.filteredArticles;
         final isDistrictFilterEnabled = newsProvider.isDistrictFilterEnabled;
         final userDistrict = newsProvider.userDistrict;
 
         return Column(
           children: [
+            // Three-Tier Geographic Toggle
+            _buildTierToggle(newsProvider),
+            
             // Category Toggles (Pills) - Fixed at top
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: _buildCategoryPills(newsProvider),
             ),
             
@@ -177,6 +203,105 @@ class _NewsScreenState extends State<NewsScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildTierToggle(NewsProvider newsProvider) {
+    return Container(
+      width: double.infinity,
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Center(
+        child: Container(
+          width: 320,
+          height: 44,
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: AppTheme.gray100,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: AppTheme.gray200),
+          ),
+          child: Stack(
+            children: [
+              // Sliding Background - FILLED UI
+              AnimatedAlign(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOutBack,
+                alignment: newsProvider.isDistrictFilterEnabled
+                    ? Alignment.centerLeft
+                    : newsProvider.isStateFilterEnabled
+                        ? Alignment.center
+                        : Alignment.centerRight,
+                child: Container(
+                  width: 104,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppTheme.red500, // Changed to Brand Red fill
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.red500.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Toggle Items
+              Row(
+                children: [
+                  _buildToggleItem(
+                    label: (newsProvider.userDistrict?.isNotEmpty == true) 
+                        ? newsProvider.userDistrict! 
+                        : 'DISTRICT',
+                    isActive: newsProvider.isDistrictFilterEnabled,
+                    onTap: () => newsProvider.setDistrictFilter(true),
+                  ),
+                  _buildToggleItem(
+                    label: (newsProvider.userState?.isNotEmpty == true) 
+                        ? newsProvider.userState! 
+                        : 'STATE',
+                    isActive: newsProvider.isStateFilterEnabled,
+                    onTap: () => newsProvider.setStateFilter(true),
+                  ),
+                  _buildToggleItem(
+                    label: 'NATIONAL',
+                    isActive: newsProvider.isNationalFilterEnabled,
+                    onTap: () => newsProvider.setNationalFilter(true),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildToggleItem({
+    required String label,
+    required bool isActive,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Center(
+          child: AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w900,
+              color: isActive ? Colors.white : AppTheme.gray500, // Active text is now white
+              letterSpacing: 0.5,
+              fontFamily: 'Inter', // Ensure consistent font
+            ),
+            child: Text(label),
+          ),
+        ),
       ),
     );
   }

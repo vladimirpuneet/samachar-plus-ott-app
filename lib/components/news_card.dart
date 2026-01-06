@@ -140,6 +140,7 @@ class NewsCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 16),
+                      // Summary / Content
                       Expanded(
                         child: Text(
                           article.summary,
@@ -148,10 +149,39 @@ class NewsCard extends StatelessWidget {
                             color: AppTheme.gray600,
                             height: 1.6,
                           ),
-                          maxLines: isFullScreen ? 10 : 3, // Increased to show more text
+                          maxLines: isFullScreen ? 8 : 3, // Reduced maxLines slightly to fit icons
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      
+                      // Hashtags & Social Icons (Visible in Full Screen)
+                      if (isFullScreen) ...[
+                        const SizedBox(height: 12),
+                        // Dynamic Hashtags
+                        Wrap(
+                          spacing: 8,
+                          children: article.tags.take(3).map((tag) => Text(
+                            '#${tag.toLowerCase()}',
+                            style: TextStyle(
+                              color: AppTheme.red500.withValues(alpha: 0.8),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          )).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        // Social Media Icons
+                        Row(
+                          children: [
+                            _buildSocialIcon(Icons.facebook, const Color(0xFF1877F2)),
+                            const SizedBox(width: 20),
+                            _buildSocialIcon(const IconData(0xe33c, fontFamily: 'MaterialIcons'), const Color(0xFFE4405F)), // Instagram-ish (using camera or specific icon)
+                            const SizedBox(width: 20),
+                            _buildSocialIcon(const IconData(0xe6b0, fontFamily: 'MaterialIcons'), const Color(0xFFFF0000)), // YouTube-ish
+                          ],
+                        ),
+                      ],
+                      
                       const SizedBox(height: 16),
                       // Footer (Time only, no readmore button)
                       Container(
@@ -195,4 +225,11 @@ class NewsCard extends StatelessWidget {
     return 'Just now';
   }
 
+  Widget _buildSocialIcon(IconData icon, Color color) {
+    return Icon(
+      icon,
+      size: 24,
+      color: color.withValues(alpha: 0.9),
+    );
+  }
 }

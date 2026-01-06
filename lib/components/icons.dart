@@ -20,10 +20,10 @@ class _LiveIconState extends State<LiveIcon> with SingleTickerProviderStateMixin
     super.initState();
     _pulseController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1),
+      duration: const Duration(milliseconds: 600), // More intense blinking
     )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    _pulseAnimation = Tween<double>(begin: 0.2, end: 1.0).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeIn),
     );
   }
 
@@ -42,27 +42,59 @@ class _LiveIconState extends State<LiveIcon> with SingleTickerProviderStateMixin
       mainAxisSize: MainAxisSize.min,
       children: [
         Stack(
+          clipBehavior: Clip.none, // Allow dot to go outside slightly
           alignment: Alignment.center,
           children: [
             // TV Frame Icon
             Icon(
               Icons.tv_rounded,
-              size: widget.height * 1.1,
+              size: widget.height * 1.4, // Pre-scaled for better fit
               color: activeColor,
             ),
-            // Live Indicator Dot
+            // "LIVE" TEXT INSIDE TV - Better Visibility
             if (!isInactive)
               Positioned(
-                top: 4,
-                right: 4,
+                top: 7, // Precise alignment for TV screen area
                 child: FadeTransition(
                   opacity: _pulseAnimation,
                   child: Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: Colors.red, // Changed from black to brand red
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: const Text(
+                      'LIVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 9, // Increased size
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            // Live Indicator Dot - CORNER OF BUTTON
+            if (!isInactive)
+              Positioned(
+                top: -2,
+                right: -2,
+                child: FadeTransition(
+                  opacity: _pulseAnimation,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
                       color: Colors.red,
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withValues(alpha: 0.8),
+                          blurRadius: 6,
+                          spreadRadius: 2,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -71,12 +103,12 @@ class _LiveIconState extends State<LiveIcon> with SingleTickerProviderStateMixin
         ),
         const SizedBox(height: 2),
         Text(
-          'LIVE TV',
+          'NEWS CHANNEL',
           style: TextStyle(
             color: activeColor,
             fontWeight: FontWeight.w900,
-            fontSize: 10,
-            letterSpacing: 0.5,
+            fontSize: 9,
+            letterSpacing: 0.4,
           ),
         ),
       ],

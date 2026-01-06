@@ -23,8 +23,11 @@ class NewsProvider extends ChangeNotifier {
   String _searchQuery = '';
   bool _usingSupabase = false; // Track which data source is being used
   String _selectedRegion = 'NATIONAL'; // 'NATIONAL' or 'REGIONAL'
-  bool _isDistrictFilterEnabled = false; // Track if district filter is enabled
+  bool? _isDistrictFilterEnabled = false; // Track if district filter is enabled
+  bool? _isStateFilterEnabled = false; // Track if state filter is enabled
+  bool _isNationalFilterEnabled = true; // Default tier (National)
   String? _userDistrict; // User's selected district from profile
+  String? _userState; // User's selected state from profile
 
   // Public interface - same as before migration
   List<NewsArticle> get articles => _articles;
@@ -36,8 +39,11 @@ class NewsProvider extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   bool get isUsingSupabase => _usingSupabase; // New property to track data source
   String get selectedRegion => _selectedRegion;
-  bool get isDistrictFilterEnabled => _isDistrictFilterEnabled;
+  bool get isDistrictFilterEnabled => _isDistrictFilterEnabled ?? false;
+  bool get isStateFilterEnabled => _isStateFilterEnabled ?? false;
+  bool get isNationalFilterEnabled => _isNationalFilterEnabled;
   String? get userDistrict => _userDistrict;
+  String? get userState => _userState;
 
 
   NewsProvider() {
@@ -90,6 +96,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(minutes: 45)),
           category: 'Politics',
           district: 'Lucknow',
+          state: 'Uttar Pradesh',
           tags: ['Politics', 'Reform', 'Digital'],
           author: 'Aman Singh',
           imageAssetIds: [],
@@ -104,6 +111,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(hours: 3)),
           category: 'Technology',
           district: 'Jaipur',
+          state: 'Rajasthan',
           tags: ['Quantum', 'Tech', 'Innovation'],
           author: 'Priya Verma',
           imageAssetIds: [],
@@ -118,6 +126,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(hours: 5)),
           category: 'Sports',
           district: 'Jodhpur',
+          state: 'Rajasthan',
           tags: ['Sports', 'Championship', 'Selection'],
           author: 'Rohan Sharma',
           imageAssetIds: [],
@@ -132,6 +141,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(hours: 10)),
           category: 'Crime',
           district: 'Dehradun',
+          state: 'Uttarakhand',
           tags: ['Crime', 'Cyber', 'Security'],
           author: 'Vikram Das',
           imageAssetIds: [],
@@ -146,6 +156,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(hours: 14)),
           category: 'Local',
           district: 'Jaipur',
+          state: 'Rajasthan',
           tags: ['Local', 'Heritage', 'Tourism'],
           author: 'Suman Gupta',
           imageAssetIds: [],
@@ -160,6 +171,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(hours: 22)),
           category: 'Politics',
           district: 'Varanasi',
+          state: 'Uttar Pradesh',
           tags: ['EV', 'Policy', 'Green'],
           author: 'Anita Roy',
           imageAssetIds: [],
@@ -174,6 +186,7 @@ class NewsProvider extends ChangeNotifier {
           publishedAt: DateTime.now().subtract(const Duration(days: 1)),
           category: 'Technology',
           district: 'Jaipur',
+          state: 'Rajasthan',
           tags: ['Tech', 'Wearable', 'Health'],
           author: 'Kabir Khan',
           imageAssetIds: [],
@@ -303,17 +316,35 @@ class NewsProvider extends ChangeNotifier {
       
       bool matchesCategory = _selectedCategory == 'All' || article.category == _selectedCategory;
       
-      // Apply district filter if enabled
-      bool matchesDistrict = true;
-      if (_isDistrictFilterEnabled && _userDistrict != null && _userDistrict!.isNotEmpty) {
-        matchesDistrict = article.district == _userDistrict;
-      }
-      
-      return matchesCategory && matchesDistrict;
+      return matchesCategory;
     }).toList();
 
-    // Sort by published date (newest first)
-    _filteredArticles.sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
+    // Sort by:
+    // 1. District matches (if priority enabled)
+    // 2. State matches (if priority enabled and district NOT matching or state priority specifically enabled)
+    // 3. Published date (newest first)
+    _filteredArticles.sort((a, b) {
+      // District Priority (Strongest)
+      if (_isDistrictFilterEnabled == true && _userDistrict != null && _userDistrict!.isNotEmpty) {
+        final aMatches = a.district == _userDistrict;
+        final bMatches = b.district == _userDistrict;
+        if (aMatches != bMatches) return aMatches ? -1 : 1;
+      }
+      
+      // State Priority
+      if (_isStateFilterEnabled == true && _userState != null && _userState!.isNotEmpty) {
+        // Note: Currently NewsArticle model needs a state field. 
+        // We'll use a placeholder or check if it matches in some other way for now.
+        // I will add state to model in next step.
+        // For now, let's assume district contains state info or just handle the logic.
+        final aMatches = a.state == _userState;
+        final bMatches = b.state == _userState;
+        if (aMatches != bMatches) return aMatches ? -1 : 1;
+      }
+      
+      // Secondary sort: Newest first
+      return b.publishedAt.compareTo(a.publishedAt);
+    });
     
     notifyListeners();
   }
@@ -336,6 +367,34 @@ class NewsProvider extends ChangeNotifier {
   void setDistrictFilter(bool enabled) {
     if (_isDistrictFilterEnabled != enabled) {
       _isDistrictFilterEnabled = enabled;
+      if (enabled) {
+        _isStateFilterEnabled = false;
+        _isNationalFilterEnabled = false;
+      }
+      _filterArticles();
+    }
+  }
+
+  /// Set state filter enabled/disabled
+  void setStateFilter(bool enabled) {
+    if (_isStateFilterEnabled != enabled) {
+      _isStateFilterEnabled = enabled;
+      if (enabled) {
+        _isDistrictFilterEnabled = false;
+        _isNationalFilterEnabled = false;
+      }
+      _filterArticles();
+    }
+  }
+
+  /// Set national filter enabled/disabled
+  void setNationalFilter(bool enabled) {
+    if (_isNationalFilterEnabled != enabled) {
+      _isNationalFilterEnabled = enabled;
+      if (enabled) {
+        _isDistrictFilterEnabled = false;
+        _isStateFilterEnabled = false;
+      }
       _filterArticles();
     }
   }
@@ -344,8 +403,22 @@ class NewsProvider extends ChangeNotifier {
   void setUserDistrict(String? district) {
     if (_userDistrict != district) {
       _userDistrict = district;
-      if (_isDistrictFilterEnabled) {
+      if (_isDistrictFilterEnabled == true) {
         _filterArticles();
+      } else {
+        notifyListeners(); // Still notify to update labels
+      }
+    }
+  }
+
+  /// Set user's state for filtering
+  void setUserState(String? state) {
+    if (_userState != state) {
+      _userState = state;
+      if (_isStateFilterEnabled == true) {
+        _filterArticles();
+      } else {
+        notifyListeners(); // Still notify to update labels
       }
     }
   }

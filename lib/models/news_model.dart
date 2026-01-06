@@ -11,6 +11,7 @@ class NewsArticle {
   final DateTime publishedAt;
   final String category;
   final String? district;
+  final String? state; // Added state field
   final String? subDistrict;
   final List<String> tags;
   final bool isBreaking;
@@ -36,6 +37,7 @@ class NewsArticle {
     required this.publishedAt,
     required this.category,
     this.district,
+    this.state,
     this.subDistrict,
     required this.tags,
     this.isBreaking = false,
@@ -63,6 +65,7 @@ class NewsArticle {
       publishedAt: publishedAt,
       category: json['category'] ?? '',
       district: json['district'],
+      state: json['state'],
       subDistrict: json['sub_district'],
       tags: List<String>.from(json['tags'] ?? []),
       isBreaking: json['is_breaking'] ?? json['isBreaking'] ?? false,
@@ -86,6 +89,7 @@ class NewsArticle {
       'created_at': publishedAt.toIso8601String(),
       'category': category,
       'district': district,
+      'state': state,
       'sub_district': subDistrict,
       'tags': tags,
       'is_breaking': isBreaking,
@@ -115,6 +119,7 @@ class NewsArticle {
     DateTime? publishedAt,
     String? category,
     String? district,
+    String? state,
     String? subDistrict,
     List<String>? tags,
     bool? isBreaking,
@@ -134,6 +139,7 @@ class NewsArticle {
       publishedAt: publishedAt ?? this.publishedAt,
       category: category ?? this.category,
       district: district ?? this.district,
+      state: state ?? this.state,
       subDistrict: subDistrict ?? this.subDistrict,
       tags: tags ?? this.tags,
       isBreaking: isBreaking ?? this.isBreaking,
